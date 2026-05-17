@@ -1,10 +1,12 @@
 #include "personagem.h"
+#include "telas.h"
 #include "raylib.h" 
 
 //criar a janela do raylib
 int main(){
     InitWindow(1920, 1080, "After Session");
     SetTargetFPS(60); 
+    TelaAtual tela = TELA_START;
     //cria a variavel jogador e inicializa ela
     Personagem player;
     InicializarPersonagem(&player);
