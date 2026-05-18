@@ -14,5 +14,5 @@ O jogo vai ter a tela de Start, que vai ser temática do jogo.
 
 Os fim de jogos são caso o jogador conclua o turno, aparece uma mensagem de parabéns e caso o contrário, o jogador receberá uma mensagem de game over. 
 
-#Assets:
+# Assets:
 Fazer um personagem bem feito, além de uma boa musica e uma boa ambientação, vai com certeza fazer a gente ter uma chance gigantesca de ir para a mostra tech, é so querer... o pedro tem que querer...
