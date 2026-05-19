@@ -5,7 +5,19 @@
 static bool iniciandoTransicao = false;
 static float fadeAlpha = 0.0f;
 
+// ADIÇÃO: Variável que controla a caixa de texto (já começa ativada)
+static bool lendoDialogo = true; 
+
 TelaAtual UpdateIntro(Personagem *player) {
+    
+    // ADIÇÃO: Lógica para parar o jogo enquanto a caixa estiver na tela
+    if (lendoDialogo) {
+        if (IsKeyPressed(KEY_ENTER)) {
+            lendoDialogo = false; // Fecha a caixa ao apertar ENTER
+        }
+        return TELA_INTRO;
+    }
+
     // 1. Lógica do Fade (Se encostou na porta, perde o controle e a tela escurece)
     if (iniciandoTransicao) {
         fadeAlpha += 0.01f; 
@@ -13,6 +25,9 @@ TelaAtual UpdateIntro(Personagem *player) {
         if (fadeAlpha >= 1.0f) {
             fadeAlpha = 0.0f;
             iniciandoTransicao = false;
+            
+            // ADIÇÃO: Prepara a caixa de texto para a próxima vez
+            lendoDialogo = true; 
             
             // Coloca o personagem de volta na esquerda para começar o Gameplay
             player->posicao.x = 10.0f; 
@@ -54,6 +69,17 @@ void DrawIntro(Personagem player) {
 
     // Desenha o personagem na posição controlada pelo teclado
     DrawPersonagem(player);
+
+    // ADIÇÃO: Desenho da caixa de diálogo (Por cima do fundo e do personagem)
+    if (lendoDialogo) {
+        Rectangle caixaDialogo = { 100.0f, 750.0f, 1720.0f, 200.0f };
+        DrawRectangleRec(caixaDialogo, DARKGRAY);
+        DrawRectangleLinesEx(caixaDialogo, 5.0f, BLACK); // Borda preta
+        
+        DrawText("Voce:", 130, 780, 30, SKYBLUE);
+        DrawText("\"Finalmente consegui um emprego... acho que dessa vez vai!\"", 130, 850, 40, WHITE);
+        DrawText("[PRESSIONE ENTER PARA CONTINUAR]", 1350, 910, 20, LIGHTGRAY);
+    }
 
     // Cortina preta da transição
     if (iniciandoTransicao) {
