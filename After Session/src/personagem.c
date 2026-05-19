@@ -1,7 +1,7 @@
 #include "personagem.h"
 
 void InicializarPersonagem(Personagem *p){
-    p->posicao.x = 960.0f;
+    p->posicao.x = 50.0f;
     p->posicao.y = 540.0f;
     p->raio = 20.0f;
     p->velocidade = 3.5f;
