@@ -3,87 +3,97 @@
 #include "start_screen.h"
 #include "intro.h"
 #include "gameplay.h"
-#include "raylib.h" 
+#include "audio.h"
+#include "raylib.h"
 
 int main() {
-    // Criar a janela do raylib
     InitWindow(1920, 1080, "After Session");
-    SetTargetFPS(60); 
-    
+    SetTargetFPS(60);
+
+    InicializarAudio();
+
     TelaAtual tela = TELA_START;
-    
-    // Cria a variável jogador e inicializa ela
+    TelaAtual telaAnterior = TELA_START;
+
     Personagem player;
     InicializarPersonagem(&player);
 
-    // Loop principal
+    // Começa tocando a música do menu
+    TocarMusicaMenu();
+
     while (!WindowShouldClose()) {
-        
+
         // ==========================================
-        // 1. UPDATE / LÓGICA (Nenhum desenho aqui!)
+        // 1. UPDATE / LÓGICA
         // ==========================================
         switch (tela) {
             case TELA_START:
                 tela = UpdateStartScreen();
-                // CORREÇÃO 1: Removido o DrawStartScreen() daqui. 
-                // Desenhos só podem acontecer entre BeginDrawing e EndDrawing.
                 break;
-                
+
             case TELA_INTRO:
-                // O personagem só atualiza a posição quando o jogo começar de verdade!
-                tela = UpdateIntro(&player); 
+                tela = UpdateIntro(&player);
                 break;
-                
+
             case TELA_GAMEPLAY:
                 AtualizarPersonagem(&player);
-                tela = UpdateGameplay(&player); 
+                tela = UpdateGameplay(&player);
                 break;
-                
+
             case TELA_VITORIA:
                 break;
-                
-            case TELA_GAME_OVER: // CORREÇÃO 2: Removido o "_" para bater exatamente com o seu enum (TELA_GAMEOVER)
-                break;  
-                
+
+            case TELA_GAME_OVER:
+                break;
+
             default: break;
         }
-        
+
+        // Troca de música quando a tela muda
+        if (tela != telaAnterior) {
+            if (tela == TELA_INTRO) {
+                TocarMusicaIntro();
+            }
+            telaAnterior = tela;
+        }
+
+        // Mantém o stream de áudio ativo
+        AtualizarAudio();
+
         // ==========================================
-        // 2. DRAW / DESENHO (Tudo que vai para a tela fica aqui)
+        // 2. DRAW / DESENHO
         // ==========================================
         BeginDrawing();
             ClearBackground(BLACK);
 
             switch (tela) {
                 case TELA_START:
-                    DrawStartScreen(); // O menu e o fade preto são desenhados aqui
+                    DrawStartScreen();
                     break;
-                    
+
                 case TELA_INTRO:
-                    // CORREÇÃO 3: O personagem agora foi movido para DENTRO dos cases certos!
-                    DrawIntro(player); // O cenário e o personagem são desenhados aqui 
+                    DrawIntro(player);
                     break;
-                    
+
                 case TELA_GAMEPLAY:
-                    DrawGameplay(player); 
+                    DrawGameplay(player);
                     break;
-                    
+
                 case TELA_VITORIA:
                     DrawText("PARABENS! TURNO CONCLUIDO", 500, 500, 50, GREEN);
                     break;
-                    
+
                 case TELA_GAME_OVER:
                     DrawText("GAME OVER", 800, 500, 60, RED);
                     break;
-                    
+
                 default: break;
             }
 
-            // ATENÇÃO: O DrawPersonagem(player) saiu daqui de baixo!
-            
         EndDrawing();
     }
-    
-    CloseWindow();    
+
+    EncerrarAudio();
+    CloseWindow();
     return 0;
 }
