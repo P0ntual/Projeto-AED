@@ -18,14 +18,11 @@ int main() {
     Personagem player;
     InicializarPersonagem(&player);
 
-    // Começa tocando a música do menu
+
     TocarMusicaMenu();
 
     while (!WindowShouldClose()) {
 
-        // ==========================================
-        // 1. UPDATE / LÓGICA
-        // ==========================================
         switch (tela) {
             case TELA_START:
                 tela = UpdateStartScreen();
@@ -49,7 +46,6 @@ int main() {
             default: break;
         }
 
-        // Troca de música quando a tela muda
         if (tela != telaAnterior) {
             if (tela == TELA_INTRO) {
                 TocarMusicaIntro();
@@ -57,12 +53,10 @@ int main() {
             telaAnterior = tela;
         }
 
-        // Mantém o stream de áudio ativo
+
         AtualizarAudio();
 
-        // ==========================================
-        // 2. DRAW / DESENHO
-        // ==========================================
+
         BeginDrawing();
             ClearBackground(BLACK);
 

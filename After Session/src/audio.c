@@ -35,7 +35,7 @@ void TocarMusicaIntro(void) {
     PlayMusicStream(musicaAtual);
 }
 
-// Chame essa função no loop principal para manter o stream ativo
+
 void AtualizarAudio(void) {
     if (!audioIniciado) return;
     UpdateMusicStream(musicaAtual);
