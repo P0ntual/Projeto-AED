@@ -25,9 +25,10 @@ TelaAtual UpdateIntro(Personagem *player) {
             
             lendoDialogo = true; 
             
-            player->posicao.x = 10.0f; 
-            
-            return TELA_GAMEPLAY; 
+            player->posicao.x = 960.0f;
+            player->posicao.y = 1050.0f;
+
+            return TELA_ENTRADA;
         }
         return TELA_INTRO;
     }

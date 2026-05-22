@@ -14,6 +14,7 @@ static MapaAtual mapaAtual = MAPA_SAGUAO;
 
 static Rectangle portaCorredor1 = { 0.0f, 0.0f, 200.0f, 200.0f };
 static Rectangle portaCorredor2 = { 1720.0f, 0.0f, 200.0f, 200.0f };
+static Rectangle portaSaida     = { 760.0f, 900.0f, 400.0f, 160.0f };
 
 // Portas Padrão para os Corredores e Salas
 static Rectangle portaEsquerda = { 0.0f, 400.0f, 100.0f, 280.0f };  
@@ -50,8 +51,13 @@ TelaAtual UpdateGameplay(Personagem *player) {
             }
             else if (CheckCollisionCircleRec(player->posicao, raio, portaCorredor2)) {
                 mapaAtual = MAPA_CORREDOR_2;
-                player->posicao.x = 150.0f; 
-                player->posicao.y = 540.0f; 
+                player->posicao.x = 150.0f;
+                player->posicao.y = 540.0f;
+            }
+            else if (CheckCollisionCircleRec(player->posicao, raio, portaSaida)) {
+                player->posicao.x = 960.0f;
+                player->posicao.y = 1050.0f;
+                return TELA_ENTRADA;
             }
             break;
 
@@ -112,10 +118,12 @@ void DrawGameplay(Personagem player) {
     switch (mapaAtual) {
         
         case MAPA_SAGUAO:
-            ClearBackground(DARKGRAY); 
+            ClearBackground(DARKGRAY);
             DrawText("SAGUAO PRINCIPAL", 800, 50, 40, WHITE);
-            DrawRectangleRec(portaCorredor1, MAROON); 
-            DrawRectangleRec(portaCorredor2, DARKBLUE); 
+            DrawRectangleRec(portaCorredor1, MAROON);
+            DrawRectangleRec(portaCorredor2, DARKBLUE);
+            DrawRectangleRec(portaSaida, GOLD);
+            DrawText("SAIDA", 910, 950, 30, DARKGRAY);
             break;
 
         case MAPA_CORREDOR_1:

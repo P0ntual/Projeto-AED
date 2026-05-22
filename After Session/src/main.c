@@ -2,6 +2,7 @@
 #include "telas.h"
 #include "start_screen.h"
 #include "intro.h"
+#include "entrada.h"
 #include "gameplay.h"
 #include "audio.h"
 #include "raylib.h"
@@ -30,6 +31,11 @@ int main() {
 
             case TELA_INTRO:
                 tela = UpdateIntro(&player);
+                break;
+
+            case TELA_ENTRADA:
+                AtualizarPersonagem(&player);
+                tela = UpdateEntrada(&player);
                 break;
 
             case TELA_GAMEPLAY:
@@ -67,6 +73,10 @@ int main() {
 
                 case TELA_INTRO:
                     DrawIntro(player);
+                    break;
+
+                case TELA_ENTRADA:
+                    DrawEntrada(player);
                     break;
 
                 case TELA_GAMEPLAY:
