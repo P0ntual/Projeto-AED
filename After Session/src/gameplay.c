@@ -17,13 +17,36 @@ static Rectangle portaCorredor2 = { 1720.0f, 0.0f, 200.0f, 200.0f };
 static Rectangle portaSaida     = { 760.0f, 900.0f, 400.0f, 160.0f };
 
 // Portas Padrão para os Corredores e Salas
-static Rectangle portaEsquerda = { 0.0f, 400.0f, 100.0f, 280.0f };  
+static Rectangle portaEsquerda = { 0.0f, 400.0f, 100.0f, 280.0f };
 static Rectangle portaDireita  = { 1820.0f, 400.0f, 100.0f, 280.0f };
+
+// Blocos sólidos das salas (poltronas e tela do cinema)
+static Rectangle telaBloco        = {  710.0f,  20.0f, 500.0f, 200.0f };
+static Rectangle poltronasEsq     = {  100.0f, 300.0f, 360.0f, 480.0f };
+static Rectangle poltronasDirr    = { 1460.0f, 300.0f, 360.0f, 480.0f };
+static Rectangle poltronasCentEsq = {  560.0f, 300.0f, 300.0f, 480.0f };
+static Rectangle poltronasCentDir = { 1060.0f, 300.0f, 300.0f, 480.0f };
+
+// Portas de saída das salas
+static Rectangle portaSaidaSala1 = {    0.0f, 860.0f, 100.0f, 220.0f }; // canto inferior esquerdo
+static Rectangle portaSaidaSala2 = { 1820.0f, 860.0f, 100.0f, 220.0f }; // canto inferior direito
 
 
 TelaAtual UpdateGameplay(Personagem *player) {
-    
+    static Vector2 prevPosicao = { 960.0f, 960.0f };
     float raio = 20.0f;
+
+    // Colisão sólida com poltronas e tela nas salas
+    if (mapaAtual == MAPA_SALA_1 || mapaAtual == MAPA_SALA_2) {
+        if (CheckCollisionCircleRec(player->posicao, raio, telaBloco)        ||
+            CheckCollisionCircleRec(player->posicao, raio, poltronasEsq)     ||
+            CheckCollisionCircleRec(player->posicao, raio, poltronasDirr)    ||
+            CheckCollisionCircleRec(player->posicao, raio, poltronasCentEsq) ||
+            CheckCollisionCircleRec(player->posicao, raio, poltronasCentDir)) {
+            player->posicao = prevPosicao;
+        }
+    }
+
     if (player->posicao.x < raio) {
         player->posicao.x = raio;
     }
@@ -71,14 +94,14 @@ TelaAtual UpdateGameplay(Personagem *player) {
 
             else if (CheckCollisionCircleRec(player->posicao, raio, portaEsquerda)) {
                 mapaAtual = MAPA_SALA_1;
-                player->posicao.x = 1750.0f;
+                player->posicao.x = 80.0f;
+                player->posicao.y = 800.0f;
             }
             break;
 
    
         case MAPA_SALA_1:
-
-            if (CheckCollisionCircleRec(player->posicao, raio, portaDireita)) {
+            if (CheckCollisionCircleRec(player->posicao, raio, portaSaidaSala1)) {
                 mapaAtual = MAPA_CORREDOR_1;
                 player->posicao.x = 150.0f;
             }
@@ -89,7 +112,8 @@ TelaAtual UpdateGameplay(Personagem *player) {
        
             if (CheckCollisionCircleRec(player->posicao, raio, portaDireita)) {
                 mapaAtual = MAPA_SALA_2;
-                player->posicao.x = 150.0f; 
+                player->posicao.x = 1840.0f;
+                player->posicao.y = 800.0f;
             }
             
             else if (CheckCollisionCircleRec(player->posicao, raio, portaEsquerda)) {
@@ -101,15 +125,15 @@ TelaAtual UpdateGameplay(Personagem *player) {
 
      
         case MAPA_SALA_2:
-        
-            if (CheckCollisionCircleRec(player->posicao, raio, portaEsquerda)) {
+            if (CheckCollisionCircleRec(player->posicao, raio, portaSaidaSala2)) {
                 mapaAtual = MAPA_CORREDOR_2;
-                player->posicao.x = 1750.0f; 
+                player->posicao.x = 1750.0f;
             }
             break;
     }
 
-    return TELA_GAMEPLAY; 
+    prevPosicao = player->posicao;
+    return TELA_GAMEPLAY;
 }
 
 void DrawGameplay(Personagem player) {
@@ -134,9 +158,22 @@ void DrawGameplay(Personagem player) {
             break;
 
         case MAPA_SALA_1:
-            ClearBackground(MAROON);
-            DrawText("SALA 1", 900, 50, 40, WHITE);
-            DrawRectangleRec(portaDireita, BLACK);
+            ClearBackground(DARKGRAY);
+
+            // Palco (área caminhável superior)
+            DrawRectangle(0, 0, 1920, 300, GRAY);
+
+            // aqui será desenhado o PNG da tela
+            DrawRectangleRec(telaBloco, RAYWHITE);
+
+            // aqui será desenhado o PNG das poltronas
+            DrawRectangleRec(poltronasEsq, BROWN);
+            DrawRectangleRec(poltronasDirr, BROWN);
+            DrawRectangleRec(poltronasCentEsq, BROWN);
+            DrawRectangleRec(poltronasCentDir, BROWN);
+
+            // Porta de saída — canto inferior esquerdo
+            DrawRectangleRec(portaSaidaSala1, MAROON);
             break;
 
         case MAPA_CORREDOR_2:
@@ -147,9 +184,22 @@ void DrawGameplay(Personagem player) {
             break;
 
         case MAPA_SALA_2:
-            ClearBackground(DARKBLUE); 
-            DrawText("SALA 2", 900, 50, 40, WHITE);
-            DrawRectangleRec(portaEsquerda, BLACK); 
+            ClearBackground(DARKGRAY);
+
+            // Palco (área caminhável superior)
+            DrawRectangle(0, 0, 1920, 300, GRAY);
+
+            // aqui será desenhado o PNG da tela
+            DrawRectangleRec(telaBloco, RAYWHITE);
+
+            // aqui será desenhado o PNG das poltronas
+            DrawRectangleRec(poltronasEsq, BROWN);
+            DrawRectangleRec(poltronasDirr, BROWN);
+            DrawRectangleRec(poltronasCentEsq, BROWN);
+            DrawRectangleRec(poltronasCentDir, BROWN);
+
+            // Porta de saída — canto inferior direito
+            DrawRectangleRec(portaSaidaSala2, DARKBLUE);
             break;
     }
 
