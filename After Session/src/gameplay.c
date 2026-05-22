@@ -1,5 +1,7 @@
 #include "gameplay.h"
+#include "item.h"
 #include "raylib.h"
+#include <stdbool.h>
 
 
 typedef enum {
@@ -53,6 +55,24 @@ static Rectangle piasBanheiroMasc    = {   40.0f,  80.0f, 180.0f, 200.0f };
 // Blocos sólidos da Sala do Zelador
 static Rectangle armarioZelador = {  40.0f,  40.0f, 350.0f, 250.0f };
 static Rectangle caixasZelador  = { 600.0f, 150.0f, 700.0f, 250.0f };
+
+#define MAX_ITENS_MUNDO 5
+
+typedef struct {
+    TipoItem tipo;
+    Vector2 posicao;
+    float raioColeta;
+    bool coletado;
+    MapaAtual mapa;
+} ItemMundo;
+
+static ItemMundo itensMundo[MAX_ITENS_MUNDO] = {
+    { ITEM_CHAVE,     { 960.0f, 500.0f }, 50.0f, false, MAPA_SAGUAO       },
+    { ITEM_VASSOURA,  { 430.0f, 100.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
+    { ITEM_LANTERNA,  { 530.0f, 100.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
+    { ITEM_SACO_LIXO, { 430.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
+    { ITEM_PILHA,     { 530.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
+};
 
 
 TelaAtual UpdateGameplay(Personagem *player) {
@@ -215,6 +235,22 @@ TelaAtual UpdateGameplay(Personagem *player) {
             break;
     }
 
+    if (IsKeyPressed(KEY_ONE))   TrocarSlotAtivo(&player->inventario, 0);
+    if (IsKeyPressed(KEY_TWO))   TrocarSlotAtivo(&player->inventario, 1);
+    if (IsKeyPressed(KEY_THREE)) TrocarSlotAtivo(&player->inventario, 2);
+
+    for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
+        if (itensMundo[i].coletado || itensMundo[i].mapa != mapaAtual) continue;
+        float dx = player->posicao.x - itensMundo[i].posicao.x;
+        float dy = player->posicao.y - itensMundo[i].posicao.y;
+        bool perto = (dx * dx + dy * dy) <= (itensMundo[i].raioColeta * itensMundo[i].raioColeta);
+        if (perto && IsKeyPressed(KEY_E)) {
+            if (AdicionarItem(&player->inventario, itensMundo[i].tipo)) {
+                itensMundo[i].coletado = true;
+            }
+        }
+    }
+
     prevPosicao = player->posicao;
     return TELA_GAMEPLAY;
 }
@@ -326,5 +362,20 @@ void DrawGameplay(Personagem player) {
     }
 
 
+    for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
+        if (itensMundo[i].coletado || itensMundo[i].mapa != mapaAtual) continue;
+        Vector2 pos = itensMundo[i].posicao;
+        DrawCircle((int)pos.x, (int)pos.y, 14.0f, BLACK);
+        DrawCircle((int)pos.x, (int)pos.y, 12.0f, CorItem(itensMundo[i].tipo));
+        DrawText(NomeItem(itensMundo[i].tipo), (int)pos.x - 20, (int)pos.y - 30, 16, WHITE);
+        float dx = player.posicao.x - pos.x;
+        float dy = player.posicao.y - pos.y;
+        if ((dx * dx + dy * dy) <= (itensMundo[i].raioColeta * itensMundo[i].raioColeta)) {
+            DrawText(TextFormat("[E] Pegar %s", NomeItem(itensMundo[i].tipo)),
+                     (int)pos.x - 80, (int)pos.y - 50, 18, YELLOW);
+        }
+    }
+
     DrawPersonagem(player);
+    DrawInventario(player.inventario);
 }

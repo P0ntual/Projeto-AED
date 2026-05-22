@@ -1,6 +1,7 @@
 #ifndef PERSONAGEM_H
 #define PERSONAGEM_H
 #include "raylib.h"
+#include "item.h"
 #include <stdbool.h>
 
 typedef struct Personagem {
@@ -8,7 +9,8 @@ typedef struct Personagem {
     float velocidade;
     float raio;
     float direcao;
-}Personagem;
+    Inventario inventario;
+} Personagem;
 
 void InicializarPersonagem(Personagem *p);
 void AtualizarPersonagem(Personagem *p);

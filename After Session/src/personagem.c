@@ -5,6 +5,7 @@ void InicializarPersonagem(Personagem *p){
     p->posicao.y = 540.0f;
     p->raio = 20.0f;
     p->velocidade = 6.5f;
+    InicializarInventario(&p->inventario);
 }
 
 void AtualizarPersonagem(Personagem *p){
