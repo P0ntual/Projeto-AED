@@ -74,6 +74,9 @@ static ItemMundo itensMundo[MAX_ITENS_MUNDO] = {
     { ITEM_PILHA,     { 530.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
 };
 
+/* Zero-inicializado: cabeca=NULL, tamanho=0 — lista vazia no início. */
+static ListaItensChao itensChao;
+
 
 TelaAtual UpdateGameplay(Personagem *player) {
     static Vector2 prevPosicao = { 960.0f, 960.0f };
@@ -239,12 +242,40 @@ TelaAtual UpdateGameplay(Personagem *player) {
     if (IsKeyPressed(KEY_TWO))   TrocarSlotAtivo(&player->inventario, 1);
     if (IsKeyPressed(KEY_THREE)) TrocarSlotAtivo(&player->inventario, 2);
 
+    // Q: larga item ativo no chão na posição do personagem
+    if (IsKeyPressed(KEY_Q) && player->inventario.ativo->item != ITEM_VAZIO) {
+        TipoItem tipoAtivo = player->inventario.ativo->item;
+        RemoverItemAtivo(&player->inventario);
+        LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)mapaAtual);
+    }
+
+    // flag para consumir o press de E uma única vez por frame
+    bool pressionouE = IsKeyPressed(KEY_E);
+
+    // Itens largados no chão têm prioridade; suportam troca quando inventário cheio
+    ItemChao *proximo = ItemChaoProximo(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
+    if (proximo != NULL && pressionouE) {
+        pressionouE = false;
+        if (InventarioEstaCheio(&player->inventario)) {
+            TipoItem tipoAtivo = player->inventario.ativo->item;
+            RemoverItemAtivo(&player->inventario);
+            TipoItem tipoChao = ColetarItemChao(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
+            AdicionarItem(&player->inventario, tipoChao);
+            LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)mapaAtual);
+        } else {
+            TipoItem tipoChao = ColetarItemChao(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
+            AdicionarItem(&player->inventario, tipoChao);
+        }
+    }
+
+    // Itens pré-colocados no mundo: coleta simples (sem troca)
     for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
         if (itensMundo[i].coletado || itensMundo[i].mapa != mapaAtual) continue;
         float dx = player->posicao.x - itensMundo[i].posicao.x;
         float dy = player->posicao.y - itensMundo[i].posicao.y;
         bool perto = (dx * dx + dy * dy) <= (itensMundo[i].raioColeta * itensMundo[i].raioColeta);
-        if (perto && IsKeyPressed(KEY_E)) {
+        if (perto && pressionouE) {
+            pressionouE = false;
             if (AdicionarItem(&player->inventario, itensMundo[i].tipo)) {
                 itensMundo[i].coletado = true;
             }
@@ -362,6 +393,7 @@ void DrawGameplay(Personagem player) {
     }
 
 
+    // Itens pré-colocados: prompt só aparece quando há slot livre
     for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
         if (itensMundo[i].coletado || itensMundo[i].mapa != mapaAtual) continue;
         Vector2 pos = itensMundo[i].posicao;
@@ -370,10 +402,30 @@ void DrawGameplay(Personagem player) {
         DrawText(NomeItem(itensMundo[i].tipo), (int)pos.x - 20, (int)pos.y - 30, 16, WHITE);
         float dx = player.posicao.x - pos.x;
         float dy = player.posicao.y - pos.y;
-        if ((dx * dx + dy * dy) <= (itensMundo[i].raioColeta * itensMundo[i].raioColeta)) {
+        if ((dx * dx + dy * dy) <= (itensMundo[i].raioColeta * itensMundo[i].raioColeta) &&
+            !InventarioEstaCheio(&player.inventario)) {
             DrawText(TextFormat("[E] Pegar %s", NomeItem(itensMundo[i].tipo)),
                      (int)pos.x - 80, (int)pos.y - 50, 18, YELLOW);
         }
+    }
+
+    // Itens largados no chão: percorre a lista simplesmente encadeada
+    ItemChao *cur = itensChao.cabeca;
+    while (cur != NULL) {
+        if (cur->mapaId == (int)mapaAtual) {
+            DrawCircle((int)cur->posicao.x, (int)cur->posicao.y, 14.0f, BLACK);
+            DrawCircle((int)cur->posicao.x, (int)cur->posicao.y, 12.0f, CorItem(cur->tipo));
+            DrawText(NomeItem(cur->tipo), (int)cur->posicao.x - 20, (int)cur->posicao.y - 30, 16, WHITE);
+            float dx = player.posicao.x - cur->posicao.x;
+            float dy = player.posicao.y - cur->posicao.y;
+            if ((dx * dx + dy * dy) <= (50.0f * 50.0f)) {
+                const char *prompt = InventarioEstaCheio(&player.inventario)
+                    ? TextFormat("[E] Trocar por %s", NomeItem(cur->tipo))
+                    : TextFormat("[E] Pegar %s",      NomeItem(cur->tipo));
+                DrawText(prompt, (int)cur->posicao.x - 90, (int)cur->posicao.y - 50, 18, YELLOW);
+            }
+        }
+        cur = cur->proximo;
     }
 
     DrawPersonagem(player);

@@ -59,4 +59,30 @@ const char *NomeItem(TipoItem tipo);
 Color CorItem(TipoItem tipo);
 void DrawInventario(Inventario inv);
 
+/* -----------------------------------------------------------------
+ * ITENS NO CHÃO — Lista Simplesmente Encadeada
+ *
+ * Enquanto o inventário usa lista DUPLAMENTE encadeada (navegação
+ * bidirecional entre slots), os itens no chão usam lista SIMPLESMENTE
+ * encadeada: inserção é sempre na cabeça (O(1)) e remoção percorre
+ * mantendo rastreio do nó anterior — adequado para busca por posição.
+ * ----------------------------------------------------------------- */
+
+typedef struct ItemChao {
+    TipoItem tipo;
+    Vector2  posicao;
+    int      mapaId;          /* cast de MapaAtual; evita dependência circular */
+    struct ItemChao *proximo;
+} ItemChao;
+
+typedef struct {
+    ItemChao *cabeca;
+    int       tamanho;
+} ListaItensChao;
+
+void      InicializarListaChao(ListaItensChao *lista);
+void      LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, int mapaId);
+ItemChao *ItemChaoProximo(const ListaItensChao *lista, Vector2 posicao, int mapaId, float raio);
+TipoItem  ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, float raio);
+
 #endif

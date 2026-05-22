@@ -1,4 +1,5 @@
 #include "item.h"
+#include <stdlib.h>
 
 /*
  * Liga os INVENTARIO_SLOTS nós em sequência (lista duplamente encadeada),
@@ -141,4 +142,75 @@ void DrawInventario(Inventario inv) {
 
         cur = cur->proximo;
     }
+}
+
+/* ---------------------------------------------------------------
+ * Funções da Lista Simplesmente Encadeada de Itens no Chão
+ * --------------------------------------------------------------- */
+
+/* Inicializa a lista vazia. */
+void InicializarListaChao(ListaItensChao *lista) {
+    lista->cabeca  = NULL;
+    lista->tamanho = 0;
+}
+
+/*
+ * Insere novo item no chão como cabeça da lista (O(1)).
+ * A inserção na cabeça evita percorrer a lista — nenhuma
+ * ordem de coleta é imposta, a busca é sempre por posição.
+ */
+void LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, int mapaId) {
+    ItemChao *novo = (ItemChao *)malloc(sizeof(ItemChao));
+    if (novo == NULL) return;
+    novo->tipo    = tipo;
+    novo->posicao = posicao;
+    novo->mapaId  = mapaId;
+    novo->proximo = lista->cabeca;
+    lista->cabeca = novo;
+    lista->tamanho++;
+}
+
+/*
+ * Percorre a lista e retorna ponteiro para o primeiro nó dentro do raio
+ * no mapa indicado, sem removê-lo. Usado apenas para consulta (prompt HUD).
+ */
+ItemChao *ItemChaoProximo(const ListaItensChao *lista, Vector2 posicao, int mapaId, float raio) {
+    ItemChao *cur = lista->cabeca;
+    while (cur != NULL) {
+        if (cur->mapaId == mapaId) {
+            float dx = posicao.x - cur->posicao.x;
+            float dy = posicao.y - cur->posicao.y;
+            if ((dx * dx + dy * dy) <= (raio * raio)) return cur;
+        }
+        cur = cur->proximo;
+    }
+    return NULL;
+}
+
+/*
+ * Percorre a lista mantendo rastreio do nó anterior (padrão de remoção
+ * em lista simplesmente encadeada). Remove o primeiro nó dentro do raio,
+ * libera sua memória e retorna o tipo do item coletado.
+ * Retorna ITEM_VAZIO se nenhum item for encontrado.
+ */
+TipoItem ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, float raio) {
+    ItemChao *cur  = lista->cabeca;
+    ItemChao *prev = NULL;
+    while (cur != NULL) {
+        if (cur->mapaId == mapaId) {
+            float dx = posicao.x - cur->posicao.x;
+            float dy = posicao.y - cur->posicao.y;
+            if ((dx * dx + dy * dy) <= (raio * raio)) {
+                if (prev == NULL) lista->cabeca  = cur->proximo;
+                else              prev->proximo  = cur->proximo;
+                TipoItem tipo = cur->tipo;
+                free(cur);
+                lista->tamanho--;
+                return tipo;
+            }
+        }
+        prev = cur;
+        cur  = cur->proximo;
+    }
+    return ITEM_VAZIO;
 }
