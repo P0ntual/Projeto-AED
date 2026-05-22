@@ -45,8 +45,8 @@ TelaAtual UpdateGameplay(Personagem *player) {
         case MAPA_SAGUAO:
             if (CheckCollisionCircleRec(player->posicao, raio, portaCorredor1)) {
                 mapaAtual = MAPA_CORREDOR_1;
-                player->posicao.x = 150.0f; 
-                player->posicao.y = 540.0f; 
+                player->posicao.x = 1750.0f;
+                player->posicao.y = 540.0f;
             }
             else if (CheckCollisionCircleRec(player->posicao, raio, portaCorredor2)) {
                 mapaAtual = MAPA_CORREDOR_2;
@@ -58,23 +58,23 @@ TelaAtual UpdateGameplay(Personagem *player) {
 
         case MAPA_CORREDOR_1:
             if (CheckCollisionCircleRec(player->posicao, raio, portaDireita)) {
-                mapaAtual = MAPA_SALA_1;
-                player->posicao.x = 150.0f; 
-            }
-        
-            else if (CheckCollisionCircleRec(player->posicao, raio, portaEsquerda)) {
                 mapaAtual = MAPA_SAGUAO;
-                player->posicao.x = 250.0f; 
+                player->posicao.x = 250.0f;
                 player->posicao.y = 100.0f;
+            }
+
+            else if (CheckCollisionCircleRec(player->posicao, raio, portaEsquerda)) {
+                mapaAtual = MAPA_SALA_1;
+                player->posicao.x = 1750.0f;
             }
             break;
 
    
         case MAPA_SALA_1:
-      
-            if (CheckCollisionCircleRec(player->posicao, raio, portaEsquerda)) {
+
+            if (CheckCollisionCircleRec(player->posicao, raio, portaDireita)) {
                 mapaAtual = MAPA_CORREDOR_1;
-                player->posicao.x = 1750.0f; 
+                player->posicao.x = 150.0f;
             }
             break;
 
@@ -126,9 +126,9 @@ void DrawGameplay(Personagem player) {
             break;
 
         case MAPA_SALA_1:
-            ClearBackground(MAROON); 
+            ClearBackground(MAROON);
             DrawText("SALA 1", 900, 50, 40, WHITE);
-            DrawRectangleRec(portaEsquerda, BLACK); 
+            DrawRectangleRec(portaDireita, BLACK);
             break;
 
         case MAPA_CORREDOR_2:
