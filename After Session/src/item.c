@@ -214,3 +214,76 @@ TipoItem ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, flo
     }
     return ITEM_VAZIO;
 }
+
+/* ---------------------------------------------------------------
+ * Funções da Lista Circular Encadeada de Elementos (Sujeiras/Lixos)
+ * --------------------------------------------------------------- */
+
+void InicializarListaElementos(ListaElementos *lista) {
+    lista->cabeca  = NULL;
+    lista->tamanho = 0;
+}
+
+/* Insere novo nó no final mantendo a ordem de inserção (pós-QuickSort). */
+void InserirElemento(ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId) {
+    NodoElemento *novo = (NodoElemento *)malloc(sizeof(NodoElemento));
+    if (novo == NULL) return;
+    novo->tipo    = tipo;
+    novo->posicao = posicao;
+    novo->mapaId  = mapaId;
+    if (lista->cabeca == NULL) {
+        novo->proximo = novo;
+        lista->cabeca = novo;
+    } else {
+        NodoElemento *tail = lista->cabeca;
+        while (tail->proximo != lista->cabeca) tail = tail->proximo;
+        tail->proximo = novo;
+        novo->proximo = lista->cabeca;
+    }
+    lista->tamanho++;
+}
+
+/* Retorna ponteiro para o primeiro nó do tipo dado dentro do raio, sem remover. */
+NodoElemento *ElementoProximo(const ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId, float raio) {
+    if (lista->cabeca == NULL) return NULL;
+    NodoElemento *cur = lista->cabeca;
+    do {
+        if (cur->mapaId == mapaId && cur->tipo == tipo) {
+            float dx = posicao.x - cur->posicao.x;
+            float dy = posicao.y - cur->posicao.y;
+            if ((dx * dx + dy * dy) <= (raio * raio)) return cur;
+        }
+        cur = cur->proximo;
+    } while (cur != lista->cabeca);
+    return NULL;
+}
+
+/*
+ * Remove o primeiro nó do tipo dado dentro do raio e libera sua memória.
+ * Mantém a circularidade: o predecessor direto do nó removido passa a apontar
+ * para o sucessor; se o nó era a cabeça, a cabeça avança.
+ */
+bool RemoverElementoProximo(ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId, float raio) {
+    if (lista->cabeca == NULL) return false;
+    NodoElemento *tail = lista->cabeca;
+    while (tail->proximo != lista->cabeca) tail = tail->proximo;
+    NodoElemento *prev = tail;
+    NodoElemento *cur  = lista->cabeca;
+    do {
+        if (cur->mapaId == mapaId && cur->tipo == tipo) {
+            float dx = posicao.x - cur->posicao.x;
+            float dy = posicao.y - cur->posicao.y;
+            if ((dx * dx + dy * dy) <= (raio * raio)) {
+                prev->proximo = cur->proximo;
+                if (cur == lista->cabeca)
+                    lista->cabeca = (lista->tamanho == 1) ? NULL : cur->proximo;
+                free(cur);
+                lista->tamanho--;
+                return true;
+            }
+        }
+        prev = cur;
+        cur  = cur->proximo;
+    } while (cur != lista->cabeca);
+    return false;
+}

@@ -77,8 +77,83 @@ static ItemMundo itensMundo[MAX_ITENS_MUNDO] = {
 /* Zero-inicializado: cabeca=NULL, tamanho=0 — lista vazia no início. */
 static ListaItensChao itensChao;
 
+static ListaElementos elementosChao;
+static bool elementosInicializados = false;
+static int  lixosNoSaco = 0;
+#define MAX_LIXOS_SACO 5
+
+/* ---------------------------------------------------------------
+ * QuickSort e Spawn de Sujeiras/Lixos
+ * --------------------------------------------------------------- */
+
+typedef struct {
+    TipoElemento tipo;
+    Vector2 posicao;
+    int mapaId;
+} CandidatoElemento;
+
+static void quickSortCandidatos(CandidatoElemento *arr, int low, int high) {
+    if (low >= high) return;
+    float pivot = arr[high].posicao.x;
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (arr[j].posicao.x <= pivot) {
+            i++;
+            CandidatoElemento tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+        }
+    }
+    CandidatoElemento tmp = arr[i + 1]; arr[i + 1] = arr[high]; arr[high] = tmp;
+    int pi = i + 1;
+    quickSortCandidatos(arr, low, pi - 1);
+    quickSortCandidatos(arr, pi + 1, high);
+}
+
+static void SpawnElementos(void) {
+    /* Bounds de spawn por mapa: x0,x1,y0,y1, numSujeiras, numLixos.
+     * Saguão recebe apenas sujeiras (nl=0). */
+    typedef struct { int mapaId; int x0,x1,y0,y1; int ns,nl; } Cfg;
+    static const Cfg mapas[] = {
+        { MAPA_SAGUAO,        200, 1720, 250, 830, 4, 0 },
+        { MAPA_CORREDOR_1,    150, 1750, 150, 950, 3, 3 },
+        { MAPA_SALA_1,        100, 1800, 500, 950, 3, 3 },
+        { MAPA_CORREDOR_2,    150, 1750, 150, 950, 3, 3 },
+        { MAPA_SALA_2,        100, 1800, 500, 950, 3, 3 },
+        { MAPA_BANHEIRO_FEM,  250, 1600, 300, 850, 3, 2 },
+        { MAPA_BANHEIRO_MASC, 250, 1600, 300, 850, 3, 2 },
+        { MAPA_SALA_ZELADOR,  450, 1850, 450, 850, 3, 2 },
+    };
+    int nmapas = (int)(sizeof(mapas) / sizeof(mapas[0]));
+
+    CandidatoElemento candidatos[60];
+    int total = 0;
+    for (int m = 0; m < nmapas; m++) {
+        for (int i = 0; i < mapas[m].ns; i++) {
+            candidatos[total].tipo        = ELEMENTO_SUJEIRA;
+            candidatos[total].posicao.x   = (float)GetRandomValue(mapas[m].x0, mapas[m].x1);
+            candidatos[total].posicao.y   = (float)GetRandomValue(mapas[m].y0, mapas[m].y1);
+            candidatos[total].mapaId      = mapas[m].mapaId;
+            total++;
+        }
+        for (int i = 0; i < mapas[m].nl; i++) {
+            candidatos[total].tipo        = ELEMENTO_LIXO;
+            candidatos[total].posicao.x   = (float)GetRandomValue(mapas[m].x0, mapas[m].x1);
+            candidatos[total].posicao.y   = (float)GetRandomValue(mapas[m].y0, mapas[m].y1);
+            candidatos[total].mapaId      = mapas[m].mapaId;
+            total++;
+        }
+    }
+    quickSortCandidatos(candidatos, 0, total - 1);
+    for (int i = 0; i < total; i++)
+        InserirElemento(&elementosChao, candidatos[i].tipo, candidatos[i].posicao, candidatos[i].mapaId);
+}
 
 TelaAtual UpdateGameplay(Personagem *player) {
+    if (!elementosInicializados) {
+        InicializarListaElementos(&elementosChao);
+        SpawnElementos();
+        elementosInicializados = true;
+    }
+
     static Vector2 prevPosicao = { 960.0f, 960.0f };
     float raio = 20.0f;
 
@@ -241,6 +316,17 @@ TelaAtual UpdateGameplay(Personagem *player) {
     if (IsKeyPressed(KEY_ONE))   TrocarSlotAtivo(&player->inventario, 0);
     if (IsKeyPressed(KEY_TWO))   TrocarSlotAtivo(&player->inventario, 1);
     if (IsKeyPressed(KEY_THREE)) TrocarSlotAtivo(&player->inventario, 2);
+
+    // Clique esquerdo: vassoura limpa sujeira; saco coleta lixo (máx 5)
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && player->inventario.ativo->item != ITEM_VAZIO) {
+        TipoItem ativo = player->inventario.ativo->item;
+        if (ativo == ITEM_VASSOURA) {
+            RemoverElementoProximo(&elementosChao, ELEMENTO_SUJEIRA, player->posicao, (int)mapaAtual, 80.0f);
+        } else if (ativo == ITEM_SACO_LIXO && lixosNoSaco < MAX_LIXOS_SACO) {
+            if (RemoverElementoProximo(&elementosChao, ELEMENTO_LIXO, player->posicao, (int)mapaAtual, 80.0f))
+                lixosNoSaco++;
+        }
+    }
 
     // Q: larga item ativo no chão na posição do personagem
     if (IsKeyPressed(KEY_Q) && player->inventario.ativo->item != ITEM_VAZIO) {
@@ -428,6 +514,41 @@ void DrawGameplay(Personagem player) {
         cur = cur->proximo;
     }
 
+    // Elementos no chão (sujeiras e lixos) — lista circular encadeada
+    if (elementosChao.cabeca != NULL) {
+        TipoItem itemAtivo = player.inventario.ativo->item;
+        NodoElemento *cur = elementosChao.cabeca;
+        do {
+            if (cur->mapaId == (int)mapaAtual) {
+                Vector2 pos = cur->posicao;
+                if (cur->tipo == ELEMENTO_SUJEIRA) {
+                    DrawCircle((int)pos.x, (int)pos.y, 10.0f, (Color){ 150, 120, 80, 200 });
+                    DrawRectangle((int)pos.x - 8, (int)pos.y - 3, 16, 6, (Color){ 120, 90, 50, 180 });
+                } else {
+                    DrawCircle((int)pos.x, (int)pos.y, 8.0f, ORANGE);
+                    DrawText("Lixo", (int)pos.x - 12, (int)pos.y - 22, 13, ORANGE);
+                }
+                float dx = player.posicao.x - pos.x;
+                float dy = player.posicao.y - pos.y;
+                if ((dx * dx + dy * dy) <= (80.0f * 80.0f)) {
+                    if (cur->tipo == ELEMENTO_SUJEIRA && itemAtivo == ITEM_VASSOURA)
+                        DrawText("[CLIQUE] Limpar Sujeira", (int)pos.x - 90, (int)pos.y - 35, 16, YELLOW);
+                    else if (cur->tipo == ELEMENTO_LIXO && itemAtivo == ITEM_SACO_LIXO) {
+                        if (lixosNoSaco < MAX_LIXOS_SACO)
+                            DrawText("[CLIQUE] Coletar Lixo", (int)pos.x - 80, (int)pos.y - 35, 16, YELLOW);
+                        else
+                            DrawText("Saco cheio!", (int)pos.x - 45, (int)pos.y - 35, 16, RED);
+                    }
+                }
+            }
+            cur = cur->proximo;
+        } while (cur != elementosChao.cabeca);
+    }
+
     DrawPersonagem(player);
     DrawInventario(player.inventario);
+
+    if (player.inventario.ativo->item == ITEM_SACO_LIXO)
+        DrawText(TextFormat("Lixo: %d/%d", lixosNoSaco, MAX_LIXOS_SACO),
+                 20, 20, 22, lixosNoSaco >= MAX_LIXOS_SACO ? RED : WHITE);
 }

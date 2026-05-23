@@ -85,4 +85,35 @@ void      LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, 
 ItemChao *ItemChaoProximo(const ListaItensChao *lista, Vector2 posicao, int mapaId, float raio);
 TipoItem  ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, float raio);
 
+/* -----------------------------------------------------------------
+ * ELEMENTOS NO CHÃO (SUJEIRAS e LIXOS) — Lista Circular Encadeada
+ *
+ * Sujeiras (poeira) são limpas com a vassoura (clique esquerdo do mouse).
+ * Lixos (embalagens de pipoca) são coletados com o saco (clique esquerdo).
+ * O saco comporta no máximo 5 lixos.
+ * Os elementos são spawnados com posições ordenadas pelo QuickSort.
+ * ----------------------------------------------------------------- */
+
+typedef enum {
+    ELEMENTO_SUJEIRA,
+    ELEMENTO_LIXO
+} TipoElemento;
+
+typedef struct NodoElemento {
+    TipoElemento tipo;
+    Vector2 posicao;
+    int mapaId;
+    struct NodoElemento *proximo; /* circular: último->proximo == cabeca */
+} NodoElemento;
+
+typedef struct {
+    NodoElemento *cabeca;
+    int tamanho;
+} ListaElementos;
+
+void          InicializarListaElementos(ListaElementos *lista);
+void          InserirElemento(ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId);
+NodoElemento *ElementoProximo(const ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId, float raio);
+bool          RemoverElementoProximo(ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId, float raio);
+
 #endif
