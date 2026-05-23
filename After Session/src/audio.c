@@ -9,14 +9,16 @@ void InicializarAudio(void) {
     audioIniciado = true;
 }
 
-void TocarMusicaMenu(void) {
-    if (!audioIniciado) return;
-
-    if (IsMusicStreamPlaying(musicaAtual)) {
+static void pararMusicaAtual(void) {
+    if (IsMusicValid(musicaAtual)) {
         StopMusicStream(musicaAtual);
         UnloadMusicStream(musicaAtual);
     }
+}
 
+void TocarMusicaMenu(void) {
+    if (!audioIniciado) return;
+    pararMusicaAtual();
     musicaAtual = LoadMusicStream("My_Mirror_Image.ogg");
     SetMusicVolume(musicaAtual, 0.6f);
     PlayMusicStream(musicaAtual);
@@ -24,26 +26,20 @@ void TocarMusicaMenu(void) {
 
 void TocarMusicaIntro(void) {
     if (!audioIniciado) return;
-
-    if (IsMusicStreamPlaying(musicaAtual)) {
-        StopMusicStream(musicaAtual);
-        UnloadMusicStream(musicaAtual);
-    }
-
+    pararMusicaAtual();
     musicaAtual = LoadMusicStream("Haunting.ogg");
     SetMusicVolume(musicaAtual, 0.6f);
     PlayMusicStream(musicaAtual);
 }
 
-
 void AtualizarAudio(void) {
     if (!audioIniciado) return;
-    UpdateMusicStream(musicaAtual);
+    if (IsMusicValid(musicaAtual)) UpdateMusicStream(musicaAtual);
 }
 
 void EncerrarAudio(void) {
     if (!audioIniciado) return;
-    StopMusicStream(musicaAtual);
-    UnloadMusicStream(musicaAtual);
+    pararMusicaAtual();
     CloseAudioDevice();
+    audioIniciado = false;
 }
