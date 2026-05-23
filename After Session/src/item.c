@@ -159,12 +159,13 @@ void InicializarListaChao(ListaItensChao *lista) {
  * A inserção na cabeça evita percorrer a lista — nenhuma
  * ordem de coleta é imposta, a busca é sempre por posição.
  */
-void LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, int mapaId) {
+void LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, int mapaId, int dados) {
     ItemChao *novo = (ItemChao *)malloc(sizeof(ItemChao));
     if (novo == NULL) return;
     novo->tipo    = tipo;
     novo->posicao = posicao;
     novo->mapaId  = mapaId;
+    novo->dados   = dados;
     novo->proximo = lista->cabeca;
     lista->cabeca = novo;
     lista->tamanho++;

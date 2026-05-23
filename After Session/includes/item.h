@@ -72,6 +72,7 @@ typedef struct ItemChao {
     TipoItem tipo;
     Vector2  posicao;
     int      mapaId;          /* cast de MapaAtual; evita dependência circular */
+    int      dados;           /* estado específico do tipo (ex: lixos no saco) */
     struct ItemChao *proximo;
 } ItemChao;
 
@@ -81,7 +82,7 @@ typedef struct {
 } ListaItensChao;
 
 void      InicializarListaChao(ListaItensChao *lista);
-void      LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, int mapaId);
+void      LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, int mapaId, int dados);
 ItemChao *ItemChaoProximo(const ListaItensChao *lista, Vector2 posicao, int mapaId, float raio);
 TipoItem  ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, float raio);
 

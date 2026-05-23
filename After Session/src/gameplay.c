@@ -56,7 +56,7 @@ static Rectangle piasBanheiroMasc    = {   40.0f,  80.0f, 180.0f, 200.0f };
 static Rectangle armarioZelador = {  40.0f,  40.0f, 350.0f, 250.0f };
 static Rectangle caixasZelador  = { 600.0f, 150.0f, 700.0f, 250.0f };
 
-#define MAX_ITENS_MUNDO 5
+#define MAX_ITENS_MUNDO 6
 
 typedef struct {
     TipoItem tipo;
@@ -71,6 +71,7 @@ static ItemMundo itensMundo[MAX_ITENS_MUNDO] = {
     { ITEM_VASSOURA,  { 430.0f, 100.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
     { ITEM_LANTERNA,  { 530.0f, 100.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
     { ITEM_SACO_LIXO, { 430.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
+    { ITEM_SACO_LIXO, { 630.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
     { ITEM_PILHA,     { 530.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
 };
 
@@ -114,13 +115,13 @@ static void SpawnElementos(void) {
     typedef struct { int mapaId; int x0,x1,y0,y1; int ns,nl; } Cfg;
     static const Cfg mapas[] = {
         { MAPA_SAGUAO,        200, 1720, 250, 830, 4, 0 },
-        { MAPA_CORREDOR_1,    150, 1750, 150, 950, 3, 3 },
-        { MAPA_SALA_1,        100, 1800, 500, 950, 3, 3 },
-        { MAPA_CORREDOR_2,    150, 1750, 150, 950, 3, 3 },
-        { MAPA_SALA_2,        100, 1800, 500, 950, 3, 3 },
-        { MAPA_BANHEIRO_FEM,  250, 1600, 300, 850, 3, 2 },
-        { MAPA_BANHEIRO_MASC, 250, 1600, 300, 850, 3, 2 },
-        { MAPA_SALA_ZELADOR,  450, 1850, 450, 850, 3, 2 },
+        { MAPA_CORREDOR_1,    150, 1750, 150, 950, 3, 2 },
+        { MAPA_SALA_1,        100, 1800, 500, 950, 3, 2 },
+        { MAPA_CORREDOR_2,    150, 1750, 150, 950, 3, 2 },
+        { MAPA_SALA_2,        100, 1800, 500, 950, 3, 2 },
+        { MAPA_BANHEIRO_FEM,  250, 1600, 300, 850, 3, 1 },
+        { MAPA_BANHEIRO_MASC, 250, 1600, 300, 850, 3, 1 },
+        { MAPA_SALA_ZELADOR,  450, 1850, 450, 850, 3, 0 },
     };
     int nmapas = (int)(sizeof(mapas) / sizeof(mapas[0]));
 
@@ -331,8 +332,9 @@ TelaAtual UpdateGameplay(Personagem *player) {
     // Q: larga item ativo no chão na posição do personagem
     if (IsKeyPressed(KEY_Q) && player->inventario.ativo->item != ITEM_VAZIO) {
         TipoItem tipoAtivo = player->inventario.ativo->item;
+        int dadosItem = (tipoAtivo == ITEM_SACO_LIXO) ? lixosNoSaco : 0;
         RemoverItemAtivo(&player->inventario);
-        LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)mapaAtual);
+        LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)mapaAtual, dadosItem);
     }
 
     // flag para consumir o press de E uma única vez por frame
@@ -342,15 +344,19 @@ TelaAtual UpdateGameplay(Personagem *player) {
     ItemChao *proximo = ItemChaoProximo(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
     if (proximo != NULL && pressionouE) {
         pressionouE = false;
+        int dadosChao = proximo->dados;
         if (InventarioEstaCheio(&player->inventario)) {
-            TipoItem tipoAtivo = player->inventario.ativo->item;
+            TipoItem tipoAtivo  = player->inventario.ativo->item;
+            int      dadosAtivo = (tipoAtivo == ITEM_SACO_LIXO) ? lixosNoSaco : 0;
             RemoverItemAtivo(&player->inventario);
             TipoItem tipoChao = ColetarItemChao(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
             AdicionarItem(&player->inventario, tipoChao);
-            LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)mapaAtual);
+            LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)mapaAtual, dadosAtivo);
+            if (tipoChao == ITEM_SACO_LIXO) lixosNoSaco = dadosChao;
         } else {
             TipoItem tipoChao = ColetarItemChao(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
             AdicionarItem(&player->inventario, tipoChao);
+            if (tipoChao == ITEM_SACO_LIXO) lixosNoSaco = dadosChao;
         }
     }
 
@@ -364,6 +370,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
             pressionouE = false;
             if (AdicionarItem(&player->inventario, itensMundo[i].tipo)) {
                 itensMundo[i].coletado = true;
+                if (itensMundo[i].tipo == ITEM_SACO_LIXO) lixosNoSaco = 0;
             }
         }
     }
