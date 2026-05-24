@@ -6,6 +6,7 @@ static bool audioIniciado = false;
 
 void InicializarAudio(void) {
     InitAudioDevice();
+    SetAudioStreamBufferSizeDefault(4096);
     audioIniciado = true;
 }
 
@@ -19,22 +20,26 @@ static void pararMusicaAtual(void) {
 void TocarMusicaMenu(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("My_Mirror_Image.ogg");
+    musicaAtual = LoadMusicStream("My_Mirror_Image.wav");
     SetMusicVolume(musicaAtual, 0.6f);
+    SetMusicPitch(musicaAtual, 1.0f);
+    musicaAtual.looping = true;
     PlayMusicStream(musicaAtual);
 }
 
 void TocarMusicaIntro(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("Haunting.ogg");
+    musicaAtual = LoadMusicStream("Haunting.wav");
     SetMusicVolume(musicaAtual, 0.6f);
+    SetMusicPitch(musicaAtual, 1.0f);
+    musicaAtual.looping = true;
     PlayMusicStream(musicaAtual);
 }
 
 void AtualizarAudio(void) {
     if (!audioIniciado) return;
-    if (IsMusicValid(musicaAtual)) UpdateMusicStream(musicaAtual);
+    UpdateMusicStream(musicaAtual);
 }
 
 void EncerrarAudio(void) {

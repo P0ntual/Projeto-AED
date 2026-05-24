@@ -65,7 +65,7 @@ int main() {
 
         BeginDrawing();
             ClearBackground(BLACK);
-
+            AtualizarAudio();
             switch (tela) {
                 case TELA_START:
                     DrawStartScreen();
@@ -93,8 +93,9 @@ int main() {
 
                 default: break;
             }
-
+            AtualizarAudio();
         EndDrawing();
+        AtualizarAudio();
     }
 
     EncerrarAudio();
