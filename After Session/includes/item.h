@@ -23,6 +23,10 @@
 typedef enum {
     ITEM_VAZIO = 0,
     ITEM_CHAVE,
+    ITEM_CHAVE_SALA1,
+    ITEM_CHAVE_SALA2,
+    ITEM_CHAVE_BANHEIRO_FEM,
+    ITEM_CHAVE_BANHEIRO_MASC,
     ITEM_VASSOURA,
     ITEM_LANTERNA,
     ITEM_SACO_LIXO,
@@ -39,13 +43,12 @@ typedef struct SlotInventario {
 } SlotInventario;
 
 typedef struct {
-    SlotInventario nos[INVENTARIO_SLOTS]; /* nós alocados estaticamente */
-    SlotInventario *cabeca;               /* primeiro nó da lista        */
-    SlotInventario *ativo;                /* nó atualmente selecionado   */
-    int tamanho;                          /* slots ocupados              */
+    SlotInventario nos[INVENTARIO_SLOTS];
+    SlotInventario *cabeca;
+    SlotInventario *ativo;
+    int tamanho;
 } Inventario;
 
-/* Operações sobre a lista duplamente encadeada */
 void InicializarInventario(Inventario *inv);
 bool AdicionarItem(Inventario *inv, TipoItem tipo);
 void RemoverItemAtivo(Inventario *inv);
@@ -54,25 +57,19 @@ void TrocarSlotAtivo(Inventario *inv, int indice);
 bool InventarioEstaVazio(const Inventario *inv);
 bool InventarioEstaCheio(const Inventario *inv);
 
-/* Utilitários e renderização */
 const char *NomeItem(TipoItem tipo);
 Color CorItem(TipoItem tipo);
 void DrawInventario(Inventario inv);
 
 /* -----------------------------------------------------------------
  * ITENS NO CHÃO — Lista Simplesmente Encadeada
- *
- * Enquanto o inventário usa lista DUPLAMENTE encadeada (navegação
- * bidirecional entre slots), os itens no chão usam lista SIMPLESMENTE
- * encadeada: inserção é sempre na cabeça (O(1)) e remoção percorre
- * mantendo rastreio do nó anterior — adequado para busca por posição.
  * ----------------------------------------------------------------- */
 
 typedef struct ItemChao {
     TipoItem tipo;
     Vector2  posicao;
-    int      mapaId;          /* cast de MapaAtual; evita dependência circular */
-    int      dados;           /* estado específico do tipo (ex: lixos no saco) */
+    int      mapaId;
+    int      dados;
     struct ItemChao *proximo;
 } ItemChao;
 
@@ -88,11 +85,6 @@ TipoItem  ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, fl
 
 /* -----------------------------------------------------------------
  * ELEMENTOS NO CHÃO (SUJEIRAS e LIXOS) — Lista Circular Encadeada
- *
- * Sujeiras (poeira) são limpas com a vassoura (clique esquerdo do mouse).
- * Lixos (embalagens de pipoca) são coletados com o saco (clique esquerdo).
- * O saco comporta no máximo 5 lixos.
- * Os elementos são spawnados com posições ordenadas pelo QuickSort.
  * ----------------------------------------------------------------- */
 
 typedef enum {
@@ -104,7 +96,7 @@ typedef struct NodoElemento {
     TipoElemento tipo;
     Vector2 posicao;
     int mapaId;
-    struct NodoElemento *proximo; /* circular: último->proximo == cabeca */
+    struct NodoElemento *proximo;
 } NodoElemento;
 
 typedef struct {

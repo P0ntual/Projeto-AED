@@ -1,15 +1,11 @@
 #include "item.h"
 #include <stdlib.h>
 
-/*
- * Liga os INVENTARIO_SLOTS nós em sequência (lista duplamente encadeada),
- * inicializa todos os campos e posiciona cabeca e ativo no primeiro nó.
- */
 void InicializarInventario(Inventario *inv) {
     for (int i = 0; i < INVENTARIO_SLOTS; i++) {
         inv->nos[i].item     = ITEM_VAZIO;
         inv->nos[i].indice   = i;
-        inv->nos[i].anterior = (i > 0)                  ? &inv->nos[i - 1] : NULL;
+        inv->nos[i].anterior = (i > 0)                    ? &inv->nos[i - 1] : NULL;
         inv->nos[i].proximo  = (i < INVENTARIO_SLOTS - 1) ? &inv->nos[i + 1] : NULL;
     }
     inv->cabeca  = &inv->nos[0];
@@ -17,10 +13,6 @@ void InicializarInventario(Inventario *inv) {
     inv->tamanho = 0;
 }
 
-/*
- * Percorre a lista de cabeca→proximo e insere o item no primeiro nó vazio.
- * Retorna false se todos os nós estiverem ocupados (lista cheia).
- */
 bool AdicionarItem(Inventario *inv, TipoItem tipo) {
     SlotInventario *cur = inv->cabeca;
     while (cur != NULL) {
@@ -34,9 +26,6 @@ bool AdicionarItem(Inventario *inv, TipoItem tipo) {
     return false;
 }
 
-/*
- * Remove o item do nó apontado por 'ativo', deixando o slot vazio.
- */
 void RemoverItemAtivo(Inventario *inv) {
     if (inv->ativo->item != ITEM_VAZIO) {
         inv->ativo->item = ITEM_VAZIO;
@@ -44,10 +33,6 @@ void RemoverItemAtivo(Inventario *inv) {
     }
 }
 
-/*
- * Percorre a lista linearmente procurando um nó com o tipo informado.
- * Retorna true se encontrado; false caso contrário.
- */
 bool BuscarItem(const Inventario *inv, TipoItem tipo) {
     const SlotInventario *cur = inv->cabeca;
     while (cur != NULL) {
@@ -57,11 +42,6 @@ bool BuscarItem(const Inventario *inv, TipoItem tipo) {
     return false;
 }
 
-/*
- * Percorre a lista do cabeça até o nó de índice desejado e atualiza 'ativo'.
- * A navegação usa os ponteiros proximo — é aqui que a lista encadeada
- * substitui o acesso direto por índice.
- */
 void TrocarSlotAtivo(Inventario *inv, int indice) {
     if (indice < 0 || indice >= INVENTARIO_SLOTS) return;
     SlotInventario *cur = inv->cabeca;
@@ -74,43 +54,39 @@ void TrocarSlotAtivo(Inventario *inv, int indice) {
     }
 }
 
-/* Verifica em O(1) se nenhum slot está ocupado. */
-bool InventarioEstaVazio(const Inventario *inv) {
-    return inv->tamanho == 0;
-}
-
-/* Verifica em O(1) se todos os slots estão ocupados. */
-bool InventarioEstaCheio(const Inventario *inv) {
-    return inv->tamanho == INVENTARIO_SLOTS;
-}
+bool InventarioEstaVazio(const Inventario *inv) { return inv->tamanho == 0; }
+bool InventarioEstaCheio(const Inventario *inv) { return inv->tamanho == INVENTARIO_SLOTS; }
 
 const char *NomeItem(TipoItem tipo) {
     switch (tipo) {
-        case ITEM_CHAVE:     return "Chave";
-        case ITEM_VASSOURA:  return "Vassoura";
-        case ITEM_LANTERNA:  return "Lanterna";
-        case ITEM_SACO_LIXO: return "Saco";
-        case ITEM_PILHA:     return "Pilha";
-        default:             return "";
+        case ITEM_CHAVE:               return "Chave";
+        case ITEM_CHAVE_SALA1:         return "Ch.Sala1";
+        case ITEM_CHAVE_SALA2:         return "Ch.Sala2";
+        case ITEM_CHAVE_BANHEIRO_FEM:  return "Ch.WCF";
+        case ITEM_CHAVE_BANHEIRO_MASC: return "Ch.WCM";
+        case ITEM_VASSOURA:            return "Vassoura";
+        case ITEM_LANTERNA:            return "Lanterna";
+        case ITEM_SACO_LIXO:           return "Saco";
+        case ITEM_PILHA:               return "Pilha";
+        default:                       return "";
     }
 }
 
 Color CorItem(TipoItem tipo) {
     switch (tipo) {
-        case ITEM_CHAVE:     return GOLD;
-        case ITEM_VASSOURA:  return BROWN;
-        case ITEM_LANTERNA:  return YELLOW;
-        case ITEM_SACO_LIXO: return DARKGREEN;
-        case ITEM_PILHA:     return LIME;
-        default:             return BLANK;
+        case ITEM_CHAVE:               return GOLD;
+        case ITEM_CHAVE_SALA1:         return GOLD;
+        case ITEM_CHAVE_SALA2:         return GOLD;
+        case ITEM_CHAVE_BANHEIRO_FEM:  return GOLD;
+        case ITEM_CHAVE_BANHEIRO_MASC: return GOLD;
+        case ITEM_VASSOURA:            return BROWN;
+        case ITEM_LANTERNA:            return YELLOW;
+        case ITEM_SACO_LIXO:           return DARKGREEN;
+        case ITEM_PILHA:               return LIME;
+        default:                       return BLANK;
     }
 }
 
-/*
- * Percorre a lista de cabeca→proximo para renderizar os slots em ordem.
- * 'cur == inv.ativo' funciona corretamente porque ambos os ponteiros
- * referenciam os nós do struct original em main.c (não a cópia local).
- */
 void DrawInventario(Inventario inv) {
     const int SLOT_SIZE = 80;
     const int SLOT_GAP  = 10;
@@ -144,21 +120,13 @@ void DrawInventario(Inventario inv) {
     }
 }
 
-/* ---------------------------------------------------------------
- * Funções da Lista Simplesmente Encadeada de Itens no Chão
- * --------------------------------------------------------------- */
+/* --- Lista Simplesmente Encadeada (Itens no Chão) --- */
 
-/* Inicializa a lista vazia. */
 void InicializarListaChao(ListaItensChao *lista) {
     lista->cabeca  = NULL;
     lista->tamanho = 0;
 }
 
-/*
- * Insere novo item no chão como cabeça da lista (O(1)).
- * A inserção na cabeça evita percorrer a lista — nenhuma
- * ordem de coleta é imposta, a busca é sempre por posição.
- */
 void LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, int mapaId, int dados) {
     ItemChao *novo = (ItemChao *)malloc(sizeof(ItemChao));
     if (novo == NULL) return;
@@ -171,10 +139,6 @@ void LargarItemChao(ListaItensChao *lista, TipoItem tipo, Vector2 posicao, int m
     lista->tamanho++;
 }
 
-/*
- * Percorre a lista e retorna ponteiro para o primeiro nó dentro do raio
- * no mapa indicado, sem removê-lo. Usado apenas para consulta (prompt HUD).
- */
 ItemChao *ItemChaoProximo(const ListaItensChao *lista, Vector2 posicao, int mapaId, float raio) {
     ItemChao *cur = lista->cabeca;
     while (cur != NULL) {
@@ -188,12 +152,6 @@ ItemChao *ItemChaoProximo(const ListaItensChao *lista, Vector2 posicao, int mapa
     return NULL;
 }
 
-/*
- * Percorre a lista mantendo rastreio do nó anterior (padrão de remoção
- * em lista simplesmente encadeada). Remove o primeiro nó dentro do raio,
- * libera sua memória e retorna o tipo do item coletado.
- * Retorna ITEM_VAZIO se nenhum item for encontrado.
- */
 TipoItem ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, float raio) {
     ItemChao *cur  = lista->cabeca;
     ItemChao *prev = NULL;
@@ -216,16 +174,13 @@ TipoItem ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, flo
     return ITEM_VAZIO;
 }
 
-/* ---------------------------------------------------------------
- * Funções da Lista Circular Encadeada de Elementos (Sujeiras/Lixos)
- * --------------------------------------------------------------- */
+/* --- Lista Circular Encadeada (Sujeiras/Lixos) --- */
 
 void InicializarListaElementos(ListaElementos *lista) {
     lista->cabeca  = NULL;
     lista->tamanho = 0;
 }
 
-/* Insere novo nó no final mantendo a ordem de inserção (pós-QuickSort). */
 void InserirElemento(ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId) {
     NodoElemento *novo = (NodoElemento *)malloc(sizeof(NodoElemento));
     if (novo == NULL) return;
@@ -244,7 +199,6 @@ void InserirElemento(ListaElementos *lista, TipoElemento tipo, Vector2 posicao, 
     lista->tamanho++;
 }
 
-/* Retorna ponteiro para o primeiro nó do tipo dado dentro do raio, sem remover. */
 NodoElemento *ElementoProximo(const ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId, float raio) {
     if (lista->cabeca == NULL) return NULL;
     NodoElemento *cur = lista->cabeca;
@@ -259,11 +213,6 @@ NodoElemento *ElementoProximo(const ListaElementos *lista, TipoElemento tipo, Ve
     return NULL;
 }
 
-/*
- * Remove o primeiro nó do tipo dado dentro do raio e libera sua memória.
- * Mantém a circularidade: o predecessor direto do nó removido passa a apontar
- * para o sucessor; se o nó era a cabeça, a cabeça avança.
- */
 bool RemoverElementoProximo(ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId, float raio) {
     if (lista->cabeca == NULL) return false;
     NodoElemento *tail = lista->cabeca;
