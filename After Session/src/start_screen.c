@@ -2,12 +2,21 @@
 #include "raylib.h"
 
 
-static Rectangle btnPlay = { 960.0f/2.0f - 250.0f, 600.0f, 500.0f, 80.0f };
+static Texture2D telaInicial;
+static Rectangle btnPlay = { 960.0f/2.0f - 130.0f, 720.0f, 500.0f, 80.0f };
 static bool mouseNoBotao = false;
 
 
 static bool iniciandoTransicao = false;
-static float fadeAlpha = 0.0f;
+static float fadeAlpha = 0.0f;  
+
+void InitStartScreen(void) {
+    telaInicial = LoadTexture("Tela inicial.png");
+}
+
+void UnloadStartScreen(void) {
+    UnloadTexture(telaInicial);
+}
 
 TelaAtual UpdateStartScreen(void) {
 
@@ -42,6 +51,11 @@ TelaAtual UpdateStartScreen(void) {
 
 void DrawStartScreen(void) {
     ClearBackground(BLACK);
+
+    DrawTexturePro(telaInicial,
+        (Rectangle){ 0, 0, (float)telaInicial.width, (float)telaInicial.height },
+        (Rectangle){ 0, 0, 1920, 1080 },
+        (Vector2){ 0, 0 }, 0.0f, WHITE);
     
  
     Color corDoBotao;

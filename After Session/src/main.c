@@ -12,6 +12,7 @@ int main() {
     SetTargetFPS(60);
 
     InicializarAudio();
+    InitStartScreen();
 
     TelaAtual tela = TELA_START;
     TelaAtual telaAnterior = TELA_START;
@@ -98,6 +99,7 @@ int main() {
         AtualizarAudio();
     }
 
+    UnloadStartScreen();
     EncerrarAudio();
     CloseWindow();
     return 0;
