@@ -15,6 +15,9 @@ typedef enum {
 } MapaAtual;
 
 static MapaAtual mapaAtual = MAPA_SAGUAO;
+static FilaInimigos filaInimigos;
+static bool filaInicializada = false;
+static bool primeiraChaveColetada = false;
 
 // Portas do saguão
 static Rectangle portaCorredor1    = {    0.0f,   0.0f, 200.0f, 200.0f };
@@ -158,6 +161,25 @@ TelaAtual UpdateGameplay(Personagem *player) {
         SpawnElementos();
         elementosInicializados = true;
     }
+
+    if (!filaInicializada) {
+        InicializarFilaInimigos(&filaInimigos, 2.0f);
+
+        for (int i = 0; i < 5; i++) {
+            Inimigo inimigo;
+            inimigo.posicao.x = (float)GetRandomValue(200, 1720);
+            inimigo.posicao.y = (float)GetRandomValue(200, 880);
+            inimigo.velocidade = 150.0f;
+            inimigo.raio = 20.0f;
+            inimigo.tipo = i % 3;
+            inimigo.ativo = false;
+            inimigo.tempoVida = 0.0f;
+            EnfileirarInimigo(&filaInimigos, inimigo);
+        }
+        filaInicializada = true;
+    }
+
+    AtualizarFilaInimigos(&filaInimigos);
 
     static Vector2 prevPosicao = { 960.0f, 960.0f };
     float raio = 20.0f;
@@ -371,6 +393,16 @@ TelaAtual UpdateGameplay(Personagem *player) {
             if (AdicionarItem(&player->inventario, itensMundo[i].tipo)) {
                 itensMundo[i].coletado = true;
                 if (itensMundo[i].tipo == ITEM_SACO_LIXO) lixosNoSaco = 0;
+
+                if (!primeiraChaveColetada &&
+                    (itensMundo[i].tipo == ITEM_CHAVE ||
+                     itensMundo[i].tipo == ITEM_CHAVE_SALA1 ||
+                     itensMundo[i].tipo == ITEM_CHAVE_SALA2 ||
+                     itensMundo[i].tipo == ITEM_CHAVE_BANHEIRO_FEM ||
+                     itensMundo[i].tipo == ITEM_CHAVE_BANHEIRO_MASC)) {
+                    AtivarAparicaoInimigos(&filaInimigos);
+                    primeiraChaveColetada = true;
+                }
             }
         }
     }
@@ -527,6 +559,17 @@ void DrawGameplay(Personagem player) {
 
     DrawPersonagem(player);
     DrawInventario(player.inventario);
+    DrawFilaInimigos(&filaInimigos);
+
+    int inimigosAtivos = 0;
+    for (int i = 0; i < FILA_INIMIGOS_MAX; i++) {
+        if (filaInimigos.inimigos[i].ativo) inimigosAtivos++;
+    }
+
+    DrawText(TextFormat("Inimigos: %d | Fila: %d | Ativo: %s",
+        inimigosAtivos, TamanhoFila(&filaInimigos),
+        AparicaoEstaAtiva(&filaInimigos) ? "SIM" : "NAO"),
+        20, 60, 20, YELLOW);
 
     if (player.inventario.ativo->item == ITEM_SACO_LIXO)
         DrawText(TextFormat("Lixo: %d/%d", lixosNoSaco, MAX_LIXOS_SACO),

@@ -3,6 +3,7 @@
 
 #include "telas.h"
 #include "personagem.h"
+#include "inimigos.h"
 
 
 TelaAtual UpdateGameplay(Personagem *player);
@@ -10,4 +11,4 @@ TelaAtual UpdateGameplay(Personagem *player);
 
 void DrawGameplay(Personagem player);
 
-#endif  
+#endif
