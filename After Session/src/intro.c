@@ -1,8 +1,17 @@
 #include "intro.h"
 #include "raylib.h"
 
+static Texture2D telaIntro;
 static bool iniciandoTransicao = false;
 static float fadeAlpha = 0.0f;
+
+void InitIntro(void) {
+    telaIntro = LoadTexture("tela intro.png");
+}
+
+void UnloadIntro(void) {
+    UnloadTexture(telaIntro);
+}
 
 
 static bool lendoDialogo = true; 
@@ -61,7 +70,12 @@ TelaAtual UpdateIntro(Personagem *player) {
 }
 
 void DrawIntro(Personagem player) {
-    ClearBackground(WHITE);
+    ClearBackground(BLACK);
+
+    DrawTexturePro(telaIntro,
+        (Rectangle){ 0, 0, (float)telaIntro.width, (float)telaIntro.height },
+        (Rectangle){ 0, 0, 1920, 1080 },
+        (Vector2){ 0, 0 }, 0.0f, WHITE);
 
 
     DrawPersonagem(player);
