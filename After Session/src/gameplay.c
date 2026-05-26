@@ -16,6 +16,9 @@ static bool primeiraChaveColetada = false;
 static ListaExpediente expediente;
 static bool expedienteInicializado = false;
 
+static float tempoDecorrido = 0.0f;
+static bool tempoComecou = false;
+
 static Rectangle telaBloco        = {  710.0f,  20.0f, 500.0f, 200.0f };
 static Rectangle poltronasEsq     = {  100.0f, 300.0f, 360.0f, 480.0f };
 static Rectangle poltronasDirr    = { 1460.0f, 300.0f, 360.0f, 480.0f };
@@ -94,14 +97,14 @@ static void quickSortCandidatos(CandidatoElemento *arr, int low, int high) {
 static void SpawnElementos(void) {
     typedef struct { int mapaId; int x0,x1,y0,y1; int ns,nl; } Cfg;
     static const Cfg mapas[] = {
-        { SALA_SAGUAO,        200, 1720, 250, 830, 4, 0 },
-        { SALA_CORREDOR_1,    150, 1750, 150, 950, 3, 2 },
-        { SALA_CINEMA_1,      100, 1800, 500, 950, 3, 2 },
-        { SALA_CORREDOR_2,    150, 1750, 150, 950, 3, 2 },
-        { SALA_CINEMA_2,      100, 1800, 500, 950, 3, 2 },
-        { SALA_BANHEIRO_FEM,  250, 1600, 300, 850, 3, 1 },
-        { SALA_BANHEIRO_MASC, 250, 1600, 300, 850, 3, 1 },
-        { SALA_ZELADOR,       450, 1850, 450, 850, 3, 0 },
+        { SALA_SAGUAO,        200, 1680, 280, 820, 4, 0 },
+        { SALA_CORREDOR_1,    200, 1700, 380, 700, 3, 2 },
+        { SALA_CINEMA_1,      150, 1700, 800, 950, 3, 2 },
+        { SALA_CORREDOR_2,    200, 1700, 380, 700, 3, 2 },
+        { SALA_CINEMA_2,      150, 1700, 800, 950, 3, 2 },
+        { SALA_BANHEIRO_FEM,  300, 1500, 350, 750, 3, 1 },
+        { SALA_BANHEIRO_MASC, 300, 1500, 350, 750, 3, 1 },
+        { SALA_ZELADOR,       500, 1750, 500, 800, 3, 0 },
     };
     int nmapas = (int)(sizeof(mapas) / sizeof(mapas[0]));
 
@@ -128,6 +131,14 @@ static void SpawnElementos(void) {
         InserirElemento(&elementosChao, candidatos[i].tipo, candidatos[i].posicao, candidatos[i].mapaId);
 }
 
+static bool LimpezaCompleta(void) {
+    return elementosChao.cabeca == NULL;
+}
+
+float GameplayTempoDecorrido(void) {
+    return tempoDecorrido;
+}
+
 TelaAtual UpdateGameplay(Personagem *player) {
     if (!grafoInicializado) {
         InicializarGrafo(&grafo);
@@ -138,6 +149,12 @@ TelaAtual UpdateGameplay(Personagem *player) {
         IniciarExpediente(&expediente);
         expedienteInicializado = true;
     }
+
+    if (!tempoComecou) {
+        tempoDecorrido = 0.0f;
+        tempoComecou = true;
+    }
+    tempoDecorrido += GetFrameTime();
 
     if (!elementosInicializados) {
         InicializarListaElementos(&elementosChao);
@@ -166,7 +183,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
 
     AtualizarExpediente(&expediente, GetFrameTime());
     if (VerificarVitoria(&expediente)) {
-        return TELA_VITORIA;
+        return LimpezaCompleta() ? TELA_NOME : TELA_GAME_OVER;
     }
 
     static Vector2 prevPosicao = { 960.0f, 960.0f };
@@ -241,6 +258,9 @@ TelaAtual UpdateGameplay(Personagem *player) {
         } else {
             if (porta->destino == SALA_SAIDA) {
                 IrParaSala(&salaAtual, &player->posicao, porta);
+                if (LimpezaCompleta()) {
+                    return TELA_NOME;
+                }
                 salaAtual = SALA_SAGUAO;
                 return TELA_ENTRADA;
             }

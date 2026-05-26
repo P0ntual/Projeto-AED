@@ -11,4 +11,6 @@ TelaAtual UpdateGameplay(Personagem *player);
 
 void DrawGameplay(Personagem player);
 
+float GameplayTempoDecorrido(void);
+
 #endif

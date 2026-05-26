@@ -7,7 +7,9 @@ typedef enum TelaAtual {
     TELA_ENTRADA,
     TELA_GAMEPLAY,
     TELA_VITORIA,
-    TELA_GAME_OVER
+    TELA_GAME_OVER,
+    TELA_NOME,
+    TELA_RANKING
 } TelaAtual;
 
 #endif
