@@ -32,6 +32,9 @@ static Rectangle caixasZelador  = { 600.0f, 150.0f, 700.0f, 250.0f };
 
 static Rectangle bilheteria = { 660.0f, 30.0f, 600.0f, 180.0f };
 
+static Rectangle corredorParedeTopo  = { 0.0f,   0.0f, 1920.0f, 340.0f };
+static Rectangle corredorParedeBaixo = { 0.0f, 740.0f, 1920.0f, 340.0f };
+
 #define MAX_ITENS_MUNDO 10
 
 typedef struct {
@@ -196,6 +199,11 @@ TelaAtual UpdateGameplay(Personagem *player) {
         if (CheckCollisionCircleRec(player->posicao, raio, bilheteria))
             player->posicao = prevPosicao;
     }
+    if (salaAtual == SALA_CORREDOR_1 || salaAtual == SALA_CORREDOR_2) {
+        if (CheckCollisionCircleRec(player->posicao, raio, corredorParedeTopo) ||
+            CheckCollisionCircleRec(player->posicao, raio, corredorParedeBaixo))
+            player->posicao = prevPosicao;
+    }
 
     if (player->posicao.x < raio)           player->posicao.x = raio;
     if (player->posicao.x > 1920.0f - raio) player->posicao.x = 1920.0f - raio;
@@ -347,8 +355,10 @@ void DrawGameplay(Personagem player) {
             break;
         case SALA_CORREDOR_1:
             ClearBackground(BLACK);
+            DrawRectangleRec(corredorParedeTopo, DARKGRAY);
+            DrawRectangleRec(corredorParedeBaixo, DARKGRAY);
             DesenharPortasDaSala(salaAtual);
-            DrawText("CORREDOR 1", 850, 50, 40, MAROON);
+            DrawText("CORREDOR 1", 850, 130, 40, MAROON);
             break;
         case SALA_CINEMA_1:
             ClearBackground(DARKGRAY);
@@ -363,8 +373,10 @@ void DrawGameplay(Personagem player) {
             break;
         case SALA_CORREDOR_2:
             ClearBackground(BLACK);
+            DrawRectangleRec(corredorParedeTopo, DARKGRAY);
+            DrawRectangleRec(corredorParedeBaixo, DARKGRAY);
             DesenharPortasDaSala(salaAtual);
-            DrawText("CORREDOR 2", 850, 50, 40, DARKBLUE);
+            DrawText("CORREDOR 2", 850, 130, 40, DARKBLUE);
             break;
         case SALA_CINEMA_2:
             ClearBackground(DARKGRAY);
