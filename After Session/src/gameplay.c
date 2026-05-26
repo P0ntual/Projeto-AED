@@ -473,21 +473,9 @@ void DrawGameplay(Personagem player) {
     DrawInventario(player.inventario);
     DrawFilaInimigos(&filaInimigos);
 
-    int inimigosAtivos = 0;
-    for (int i = 0; i < FILA_INIMIGOS_MAX; i++) {
-        if (filaInimigos.inimigos[i].ativo) inimigosAtivos++;
-    }
-
-    DrawText(TextFormat("Inimigos: %d | Fila: %d | Ativo: %s",
-        inimigosAtivos, TamanhoFila(&filaInimigos),
-        AparicaoEstaAtiva(&filaInimigos) ? "SIM" : "NAO"),
-        20, 60, 20, YELLOW);
-
     const NoTurno *turno = TurnoAtual(&expediente);
     if (turno != NULL) {
-        DrawText(TextFormat("Turno: %s  (%.0f/%.0fs)",
-            turno->rotulo, expediente.tempoNoTurno, turno->duracao),
-            20, 90, 20, SKYBLUE);
+        DrawText(turno->rotulo, 20, 60, 28, SKYBLUE);
     }
 
     if (player.inventario.ativo->item == ITEM_SACO_LIXO)
