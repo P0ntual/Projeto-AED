@@ -33,6 +33,14 @@ Inimigo DesenfileirarInimigo(FilaInimigos *fila) {
     return inimigo;
 }
 
+void EnfileirarAparicao(FilaInimigos *fila, Inimigo inimigo) {
+    EnfileirarInimigo(fila, inimigo);
+}
+
+Inimigo LiberarAparicao(FilaInimigos *fila) {
+    return DesenfileirarInimigo(fila);
+}
+
 bool FilaEstaVazia(const FilaInimigos *fila) {
     return fila->tamanho == 0;
 }

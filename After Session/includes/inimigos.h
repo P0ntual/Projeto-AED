@@ -28,6 +28,8 @@ typedef struct {
 void InicializarFilaInimigos(FilaInimigos *fila, float intervalo);
 void EnfileirarInimigo(FilaInimigos *fila, Inimigo inimigo);
 Inimigo DesenfileirarInimigo(FilaInimigos *fila);
+void EnfileirarAparicao(FilaInimigos *fila, Inimigo inimigo);
+Inimigo LiberarAparicao(FilaInimigos *fila);
 bool FilaEstaVazia(const FilaInimigos *fila);
 bool FilaEstaCheia(const FilaInimigos *fila);
 int TamanhoFila(const FilaInimigos *fila);

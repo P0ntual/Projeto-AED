@@ -1,6 +1,7 @@
 #include "gameplay.h"
 #include "item.h"
 #include "grafo.h"
+#include "expediente.h"
 #include "raylib.h"
 #include <stdbool.h>
 
@@ -11,6 +12,9 @@ static IdSala salaAtual = SALA_SAGUAO;
 static FilaInimigos filaInimigos;
 static bool filaInicializada = false;
 static bool primeiraChaveColetada = false;
+
+static ListaExpediente expediente;
+static bool expedienteInicializado = false;
 
 static Rectangle telaBloco        = {  710.0f,  20.0f, 500.0f, 200.0f };
 static Rectangle poltronasEsq     = {  100.0f, 300.0f, 360.0f, 480.0f };
@@ -125,6 +129,11 @@ TelaAtual UpdateGameplay(Personagem *player) {
         grafoInicializado = true;
     }
 
+    if (!expedienteInicializado) {
+        IniciarExpediente(&expediente);
+        expedienteInicializado = true;
+    }
+
     if (!elementosInicializados) {
         InicializarListaElementos(&elementosChao);
         SpawnElementos();
@@ -149,6 +158,11 @@ TelaAtual UpdateGameplay(Personagem *player) {
     }
 
     AtualizarFilaInimigos(&filaInimigos);
+
+    AtualizarExpediente(&expediente, GetFrameTime());
+    if (VerificarVitoria(&expediente)) {
+        return TELA_VITORIA;
+    }
 
     static Vector2 prevPosicao = { 960.0f, 960.0f };
     float raio = 20.0f;
@@ -468,6 +482,13 @@ void DrawGameplay(Personagem player) {
         inimigosAtivos, TamanhoFila(&filaInimigos),
         AparicaoEstaAtiva(&filaInimigos) ? "SIM" : "NAO"),
         20, 60, 20, YELLOW);
+
+    const NoTurno *turno = TurnoAtual(&expediente);
+    if (turno != NULL) {
+        DrawText(TextFormat("Turno: %s  (%.0f/%.0fs)",
+            turno->rotulo, expediente.tempoNoTurno, turno->duracao),
+            20, 90, 20, SKYBLUE);
+    }
 
     if (player.inventario.ativo->item == ITEM_SACO_LIXO)
         DrawText(TextFormat("Lixo: %d/%d", lixosNoSaco, MAX_LIXOS_SACO),
