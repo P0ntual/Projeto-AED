@@ -3,12 +3,14 @@
 
 
 static Texture2D telaInicial;
-static Rectangle btnPlay = { 960.0f/2.0f - 130.0f, 720.0f, 500.0f, 80.0f };
-static bool mouseNoBotao = false;
+static Rectangle btnPlay    = { 960.0f/2.0f - 130.0f, 720.0f, 500.0f, 80.0f };
+static Rectangle btnRanking = { 960.0f/2.0f - 130.0f, 820.0f, 500.0f, 70.0f };
+static bool mouseNoBotaoPlay    = false;
+static bool mouseNoBotaoRanking = false;
 
 
 static bool iniciandoTransicao = false;
-static float fadeAlpha = 0.0f;  
+static float fadeAlpha = 0.0f;
 
 void InitStartScreen(void) {
     telaInicial = LoadTexture("Tela inicial.png");
@@ -35,17 +37,18 @@ TelaAtual UpdateStartScreen(void) {
     
  
     Vector2 mousePoint = GetMousePosition();
-    
-    if (CheckCollisionPointRec(mousePoint, btnPlay)) {
-        mouseNoBotao = true;
-    
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            iniciandoTransicao = true; 
+
+    mouseNoBotaoPlay    = CheckCollisionPointRec(mousePoint, btnPlay);
+    mouseNoBotaoRanking = CheckCollisionPointRec(mousePoint, btnRanking);
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        if (mouseNoBotaoPlay) {
+            iniciandoTransicao = true;
+        } else if (mouseNoBotaoRanking) {
+            return TELA_RANKING;
         }
-    } else {
-        mouseNoBotao = false;
     }
-    
+
     return TELA_START;
 }
 
@@ -58,25 +61,24 @@ void DrawStartScreen(void) {
         (Vector2){ 0, 0 }, 0.0f, WHITE);
     
  
-    Color corDoBotao;
-    if (mouseNoBotao) {
-        corDoBotao = GREEN;
-    } else {
-        corDoBotao = DARKGREEN;
-    }
-    
-
-    DrawRectangleRec(btnPlay, corDoBotao);
-    
-
+    DrawRectangleRec(btnPlay, mouseNoBotaoPlay ? GREEN : DARKGREEN);
     int tamanhoTexto = 40;
-    int larguraTexto = MeasureText("PLAY", tamanhoTexto);
-    DrawText("PLAY", 
-             (int)(btnPlay.x + btnPlay.width/2 - larguraTexto/2), 
+    int larguraPlay = MeasureText("PLAY", tamanhoTexto);
+    DrawText("PLAY",
+             (int)(btnPlay.x + btnPlay.width/2 - larguraPlay/2),
              (int)(btnPlay.y + btnPlay.height/2 - tamanhoTexto/2),
-             tamanhoTexto, 
+             tamanhoTexto,
              BLACK);
-             
+
+    DrawRectangleRec(btnRanking, mouseNoBotaoRanking ? GOLD : (Color){ 150, 110, 30, 255 });
+    int tamanhoRanking = 32;
+    int larguraRanking = MeasureText("RANKING", tamanhoRanking);
+    DrawText("RANKING",
+             (int)(btnRanking.x + btnRanking.width/2 - larguraRanking/2),
+             (int)(btnRanking.y + btnRanking.height/2 - tamanhoRanking/2),
+             tamanhoRanking,
+             BLACK);
+
 
     if (iniciandoTransicao) {
         DrawRectangle(0, 0, 1920, 1080, Fade(BLACK, fadeAlpha));

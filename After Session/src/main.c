@@ -4,6 +4,8 @@
 #include "intro.h"
 #include "entrada.h"
 #include "gameplay.h"
+#include "tela_nome.h"
+#include "tela_ranking.h"
 #include "audio.h"
 #include "raylib.h"
 
@@ -53,12 +55,26 @@ int main() {
             case TELA_GAME_OVER:
                 break;
 
+            case TELA_NOME:
+                tela = UpdateTelaNome();
+                break;
+
+            case TELA_RANKING:
+                tela = UpdateTelaRanking();
+                break;
+
             default: break;
         }
 
         if (tela != telaAnterior) {
             if (tela == TELA_INTRO) {
                 TocarMusicaIntro();
+            }
+            if (tela == TELA_NOME) {
+                InitTelaNome();
+            }
+            if (tela == TELA_RANKING) {
+                RecarregarRanking();
             }
             telaAnterior = tela;
         }
@@ -93,6 +109,14 @@ int main() {
 
                 case TELA_GAME_OVER:
                     DrawText("GAME OVER", 800, 500, 60, RED);
+                    break;
+
+                case TELA_NOME:
+                    DrawTelaNome();
+                    break;
+
+                case TELA_RANKING:
+                    DrawTelaRanking();
                     break;
 
                 default: break;
