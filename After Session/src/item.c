@@ -1,6 +1,21 @@
 #include "item.h"
 #include <stdlib.h>
 
+static bool itemMenor(TipoItem a, TipoItem b) {
+    if (a == ITEM_VAZIO) return false;
+    if (b == ITEM_VAZIO) return true;
+    return a < b;
+}
+
+static void recomputarIndices(Inventario *inv) {
+    SlotInventario *cur = inv->cabeca;
+    int idx = 0;
+    while (cur != NULL) {
+        cur->indice = idx++;
+        cur = cur->proximo;
+    }
+}
+
 void InicializarInventario(Inventario *inv) {
     for (int i = 0; i < INVENTARIO_SLOTS; i++) {
         inv->nos[i].item     = ITEM_VAZIO;
@@ -13,15 +28,49 @@ void InicializarInventario(Inventario *inv) {
     inv->tamanho = 0;
 }
 
-bool AdicionarItem(Inventario *inv, TipoItem tipo) {
-    SlotInventario *cur = inv->cabeca;
+void OrdenarInventario(Inventario *inv) {
+    if (inv->cabeca == NULL) return;
+
+    SlotInventario *cur = inv->cabeca->proximo;
     while (cur != NULL) {
-        if (cur->item == ITEM_VAZIO) {
-            cur->item = tipo;
+        SlotInventario *next = cur->proximo;
+        SlotInventario *p    = cur->anterior;
+
+        while (p != NULL && itemMenor(cur->item, p->item)) {
+            p = p->anterior;
+        }
+
+        if (p != cur->anterior) {
+            cur->anterior->proximo = cur->proximo;
+            if (cur->proximo) cur->proximo->anterior = cur->anterior;
+
+            if (p == NULL) {
+                cur->proximo  = inv->cabeca;
+                cur->anterior = NULL;
+                inv->cabeca->anterior = cur;
+                inv->cabeca = cur;
+            } else {
+                cur->proximo  = p->proximo;
+                cur->anterior = p;
+                if (p->proximo) p->proximo->anterior = cur;
+                p->proximo = cur;
+            }
+        }
+
+        cur = next;
+    }
+
+    recomputarIndices(inv);
+}
+
+bool AdicionarItem(Inventario *inv, TipoItem tipo) {
+    for (int i = 0; i < INVENTARIO_SLOTS; i++) {
+        if (inv->nos[i].item == ITEM_VAZIO) {
+            inv->nos[i].item = tipo;
             inv->tamanho++;
+            OrdenarInventario(inv);
             return true;
         }
-        cur = cur->proximo;
     }
     return false;
 }
@@ -30,6 +79,7 @@ void RemoverItemAtivo(Inventario *inv) {
     if (inv->ativo->item != ITEM_VAZIO) {
         inv->ativo->item = ITEM_VAZIO;
         inv->tamanho--;
+        OrdenarInventario(inv);
     }
 }
 

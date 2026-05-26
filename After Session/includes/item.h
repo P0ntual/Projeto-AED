@@ -56,6 +56,7 @@ bool BuscarItem(const Inventario *inv, TipoItem tipo);
 void TrocarSlotAtivo(Inventario *inv, int indice);
 bool InventarioEstaVazio(const Inventario *inv);
 bool InventarioEstaCheio(const Inventario *inv);
+void OrdenarInventario(Inventario *inv);
 
 const char *NomeItem(TipoItem tipo);
 Color CorItem(TipoItem tipo);
