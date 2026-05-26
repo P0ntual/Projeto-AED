@@ -30,6 +30,8 @@ static Rectangle piasBanheiroMasc    = {   40.0f,  80.0f, 180.0f, 200.0f };
 static Rectangle armarioZelador = {  40.0f,  40.0f, 350.0f, 250.0f };
 static Rectangle caixasZelador  = { 600.0f, 150.0f, 700.0f, 250.0f };
 
+static Rectangle bilheteria = { 660.0f, 30.0f, 600.0f, 180.0f };
+
 #define MAX_ITENS_MUNDO 10
 
 typedef struct {
@@ -41,16 +43,16 @@ typedef struct {
 } ItemMundo;
 
 static ItemMundo itensMundo[MAX_ITENS_MUNDO] = {
-    { ITEM_CHAVE,              { 960.0f, 500.0f }, 50.0f, false, SALA_SAGUAO       },
-    { ITEM_VASSOURA,           { 430.0f, 100.0f }, 50.0f, false, SALA_ZELADOR      },
-    { ITEM_LANTERNA,           { 530.0f, 100.0f }, 50.0f, false, SALA_ZELADOR      },
-    { ITEM_SACO_LIXO,          { 430.0f, 170.0f }, 50.0f, false, SALA_ZELADOR      },
-    { ITEM_SACO_LIXO,          { 630.0f, 170.0f }, 50.0f, false, SALA_ZELADOR      },
-    { ITEM_PILHA,              { 530.0f, 170.0f }, 50.0f, false, SALA_ZELADOR      },
-    { ITEM_CHAVE_BANHEIRO_FEM, { 200.0f, 220.0f }, 50.0f, false, SALA_ZELADOR      },
-    { ITEM_CHAVE_BANHEIRO_MASC,{ 250.0f, 300.0f }, 50.0f, false, SALA_ZELADOR      },
-    { ITEM_CHAVE_SALA1,        { 960.0f, 500.0f }, 50.0f, false, SALA_CORREDOR_1   },
-    { ITEM_CHAVE_SALA2,        { 960.0f, 500.0f }, 50.0f, false, SALA_CORREDOR_2   },
+    { ITEM_CHAVE,              {  960.0f, 240.0f }, 50.0f, false, SALA_SAGUAO  },
+    { ITEM_VASSOURA,           {  450.0f,  80.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_LANTERNA,           {  530.0f,  80.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_PILHA,              { 1500.0f, 100.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_SACO_LIXO,          { 1700.0f, 250.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_SACO_LIXO,          { 1700.0f, 600.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_CHAVE_BANHEIRO_FEM, {  250.0f, 500.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_CHAVE_BANHEIRO_MASC,{  500.0f, 500.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_CHAVE_SALA1,        {  500.0f, 700.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_CHAVE_SALA2,        { 1500.0f, 700.0f }, 50.0f, false, SALA_ZELADOR },
 };
 
 static ListaItensChao itensChao;
@@ -188,6 +190,10 @@ TelaAtual UpdateGameplay(Personagem *player) {
     if (salaAtual == SALA_ZELADOR) {
         if (CheckCollisionCircleRec(player->posicao, raio, armarioZelador) ||
             CheckCollisionCircleRec(player->posicao, raio, caixasZelador))
+            player->posicao = prevPosicao;
+    }
+    if (salaAtual == SALA_SAGUAO) {
+        if (CheckCollisionCircleRec(player->posicao, raio, bilheteria))
             player->posicao = prevPosicao;
     }
 
@@ -330,13 +336,14 @@ void DrawGameplay(Personagem player) {
         case SALA_SAGUAO:
             ClearBackground(DARKGRAY);
             DesenharPortasDaSala(salaAtual);
-            DrawText("SAGUAO PRINCIPAL", 800, 50, 40, WHITE);
-            DrawText("SAIDA",   910,  950, 30, DARKGRAY);
-            DrawText("COR 1",    20,   90, 20, WHITE);
-            DrawText("COR 2",  1750,   90, 20, WHITE);
-            DrawText("WC F",     12,  535, 20, WHITE);
-            DrawText("WC M",   1826,  535, 20, WHITE);
-            DrawText("ZELADOR", 880,  110, 18, WHITE);
+            DrawRectangleRec(bilheteria, (Color){ 120, 80, 40, 255 });
+            DrawText("BILHETERIA", 800, 100, 32, GOLD);
+            DrawText("SAIDA",     910,  950, 30, DARKGRAY);
+            DrawText("COR 1",      20,   90, 20, WHITE);
+            DrawText("COR 2",    1750,   90, 20, WHITE);
+            DrawText("WC F",       12,  535, 20, WHITE);
+            DrawText("WC M",     1826,  535, 20, WHITE);
+            DrawText("ZELADOR",  1730,  940, 18, WHITE);
             break;
         case SALA_CORREDOR_1:
             ClearBackground(BLACK);

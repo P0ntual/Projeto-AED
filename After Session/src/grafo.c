@@ -59,8 +59,8 @@ void InicializarGrafo(GrafoMapa *g) {
 
     ConectarSalas(g, SALA_SAGUAO, SALA_ZELADOR,
         ITEM_CHAVE,
-        (Rectangle){ 860.0f,   0.0f, 200.0f, 150.0f }, (Vector2){ 960.0f, 280.0f },
-        (Rectangle){ 760.0f, 900.0f, 400.0f, 120.0f }, (Vector2){ 960.0f, 700.0f });
+        (Rectangle){ 1720.0f, 880.0f, 200.0f, 200.0f }, (Vector2){ 1620.0f, 970.0f },
+        (Rectangle){    0.0f, 880.0f, 200.0f, 200.0f }, (Vector2){  250.0f, 970.0f });
 
     ConectarSalas(g, SALA_CORREDOR_1, SALA_CINEMA_1,
         ITEM_CHAVE_SALA1,
