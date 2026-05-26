@@ -1,53 +1,28 @@
 #include "gameplay.h"
 #include "item.h"
+#include "grafo.h"
 #include "raylib.h"
 #include <stdbool.h>
 
-typedef enum {
-    MAPA_SAGUAO,
-    MAPA_CORREDOR_1,
-    MAPA_SALA_1,
-    MAPA_CORREDOR_2,
-    MAPA_SALA_2,
-    MAPA_BANHEIRO_FEM,
-    MAPA_BANHEIRO_MASC,
-    MAPA_SALA_ZELADOR
-} MapaAtual;
+static GrafoMapa grafo;
+static bool grafoInicializado = false;
 
-static MapaAtual mapaAtual = MAPA_SAGUAO;
+static IdSala salaAtual = SALA_SAGUAO;
 static FilaInimigos filaInimigos;
 static bool filaInicializada = false;
 static bool primeiraChaveColetada = false;
 
-// Portas do saguão
-static Rectangle portaCorredor1    = {    0.0f,   0.0f, 200.0f, 200.0f };
-static Rectangle portaCorredor2    = { 1720.0f,   0.0f, 200.0f, 200.0f };
-static Rectangle portaSaida        = {  760.0f, 900.0f, 400.0f, 160.0f };
-static Rectangle portaBanheiroFem  = {    0.0f, 450.0f, 100.0f, 200.0f };
-static Rectangle portaBanheiroMasc = { 1820.0f, 450.0f, 100.0f, 200.0f };
-static Rectangle portaZelador      = {  860.0f,   0.0f, 200.0f, 150.0f };
-
-// Portas dos corredores/salas
-static Rectangle portaEsquerda    = {    0.0f, 400.0f, 100.0f, 280.0f };
-static Rectangle portaDireita     = { 1820.0f, 400.0f, 100.0f, 280.0f };
-static Rectangle portaSaidaSala1  = {    0.0f, 860.0f, 100.0f, 220.0f };
-static Rectangle portaSaidaSala2  = { 1820.0f, 860.0f, 100.0f, 220.0f };
-static Rectangle portaSaidaQuarto = {  760.0f, 900.0f, 400.0f, 120.0f };
-
-// Blocos sólidos das salas
 static Rectangle telaBloco        = {  710.0f,  20.0f, 500.0f, 200.0f };
 static Rectangle poltronasEsq     = {  100.0f, 300.0f, 360.0f, 480.0f };
 static Rectangle poltronasDirr    = { 1460.0f, 300.0f, 360.0f, 480.0f };
 static Rectangle poltronasCentEsq = {  560.0f, 300.0f, 300.0f, 480.0f };
 static Rectangle poltronasCentDir = { 1060.0f, 300.0f, 300.0f, 480.0f };
 
-// Blocos sólidos dos banheiros
 static Rectangle cabinesBanheiroFem  = {   40.0f,  80.0f, 160.0f, 700.0f };
 static Rectangle piasBanheiroFem     = { 1700.0f,  80.0f, 180.0f, 200.0f };
 static Rectangle cabinesBanheiroMasc = { 1720.0f,  80.0f, 160.0f, 700.0f };
 static Rectangle piasBanheiroMasc    = {   40.0f,  80.0f, 180.0f, 200.0f };
 
-// Blocos sólidos da sala do zelador
 static Rectangle armarioZelador = {  40.0f,  40.0f, 350.0f, 250.0f };
 static Rectangle caixasZelador  = { 600.0f, 150.0f, 700.0f, 250.0f };
 
@@ -58,43 +33,32 @@ typedef struct {
     Vector2 posicao;
     float raioColeta;
     bool coletado;
-    MapaAtual mapa;
+    IdSala mapa;
 } ItemMundo;
 
 static ItemMundo itensMundo[MAX_ITENS_MUNDO] = {
-    { ITEM_CHAVE,              { 960.0f, 500.0f }, 50.0f, false, MAPA_SAGUAO       },
-    { ITEM_VASSOURA,           { 430.0f, 100.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
-    { ITEM_LANTERNA,           { 530.0f, 100.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
-    { ITEM_SACO_LIXO,          { 430.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
-    { ITEM_SACO_LIXO,          { 630.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
-    { ITEM_PILHA,              { 530.0f, 170.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
-    { ITEM_CHAVE_BANHEIRO_FEM, { 200.0f, 220.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
-    { ITEM_CHAVE_BANHEIRO_MASC,{ 250.0f, 300.0f }, 50.0f, false, MAPA_SALA_ZELADOR  },
-    { ITEM_CHAVE_SALA1,        { 960.0f, 500.0f }, 50.0f, false, MAPA_CORREDOR_1    },
-    { ITEM_CHAVE_SALA2,        { 960.0f, 500.0f }, 50.0f, false, MAPA_CORREDOR_2    },
+    { ITEM_CHAVE,              { 960.0f, 500.0f }, 50.0f, false, SALA_SAGUAO       },
+    { ITEM_VASSOURA,           { 430.0f, 100.0f }, 50.0f, false, SALA_ZELADOR      },
+    { ITEM_LANTERNA,           { 530.0f, 100.0f }, 50.0f, false, SALA_ZELADOR      },
+    { ITEM_SACO_LIXO,          { 430.0f, 170.0f }, 50.0f, false, SALA_ZELADOR      },
+    { ITEM_SACO_LIXO,          { 630.0f, 170.0f }, 50.0f, false, SALA_ZELADOR      },
+    { ITEM_PILHA,              { 530.0f, 170.0f }, 50.0f, false, SALA_ZELADOR      },
+    { ITEM_CHAVE_BANHEIRO_FEM, { 200.0f, 220.0f }, 50.0f, false, SALA_ZELADOR      },
+    { ITEM_CHAVE_BANHEIRO_MASC,{ 250.0f, 300.0f }, 50.0f, false, SALA_ZELADOR      },
+    { ITEM_CHAVE_SALA1,        { 960.0f, 500.0f }, 50.0f, false, SALA_CORREDOR_1   },
+    { ITEM_CHAVE_SALA2,        { 960.0f, 500.0f }, 50.0f, false, SALA_CORREDOR_2   },
 };
 
-static ListaItensChao itensChao;        // zero-init: cabeca=NULL, tamanho=0
+static ListaItensChao itensChao;
 static ListaElementos elementosChao;
 static bool elementosInicializados = false;
 static int  lixosNoSaco = 0;
 #define MAX_LIXOS_SACO 5
 
-// Portas que foram abertas com chave (persistem durante a sessão)
-static bool portaZeladorAberta     = false;
-static bool portaBanheiroFemAberta = false;
-static bool portaBanheiroMascAberta= false;
-static bool portaSala1Aberta       = false;
-static bool portaSala2Aberta       = false;
-
-// Feedback de porta bloqueada: timer em frames
 static int portaBloqueadaMsgTimer = 0;
 
-// Prompt de uso de chave: timer em frames, texto a exibir
 static int  portaChaveMsgTimer = 0;
 static bool portaChavePrompt   = false;
-
-/* --- QuickSort e Spawn --- */
 
 typedef struct {
     TipoElemento tipo;
@@ -121,14 +85,14 @@ static void quickSortCandidatos(CandidatoElemento *arr, int low, int high) {
 static void SpawnElementos(void) {
     typedef struct { int mapaId; int x0,x1,y0,y1; int ns,nl; } Cfg;
     static const Cfg mapas[] = {
-        { MAPA_SAGUAO,        200, 1720, 250, 830, 4, 0 },
-        { MAPA_CORREDOR_1,    150, 1750, 150, 950, 3, 2 },
-        { MAPA_SALA_1,        100, 1800, 500, 950, 3, 2 },
-        { MAPA_CORREDOR_2,    150, 1750, 150, 950, 3, 2 },
-        { MAPA_SALA_2,        100, 1800, 500, 950, 3, 2 },
-        { MAPA_BANHEIRO_FEM,  250, 1600, 300, 850, 3, 1 },
-        { MAPA_BANHEIRO_MASC, 250, 1600, 300, 850, 3, 1 },
-        { MAPA_SALA_ZELADOR,  450, 1850, 450, 850, 3, 0 },
+        { SALA_SAGUAO,        200, 1720, 250, 830, 4, 0 },
+        { SALA_CORREDOR_1,    150, 1750, 150, 950, 3, 2 },
+        { SALA_CINEMA_1,      100, 1800, 500, 950, 3, 2 },
+        { SALA_CORREDOR_2,    150, 1750, 150, 950, 3, 2 },
+        { SALA_CINEMA_2,      100, 1800, 500, 950, 3, 2 },
+        { SALA_BANHEIRO_FEM,  250, 1600, 300, 850, 3, 1 },
+        { SALA_BANHEIRO_MASC, 250, 1600, 300, 850, 3, 1 },
+        { SALA_ZELADOR,       450, 1850, 450, 850, 3, 0 },
     };
     int nmapas = (int)(sizeof(mapas) / sizeof(mapas[0]));
 
@@ -156,6 +120,11 @@ static void SpawnElementos(void) {
 }
 
 TelaAtual UpdateGameplay(Personagem *player) {
+    if (!grafoInicializado) {
+        InicializarGrafo(&grafo);
+        grafoInicializado = true;
+    }
+
     if (!elementosInicializados) {
         InicializarListaElementos(&elementosChao);
         SpawnElementos();
@@ -184,8 +153,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
     static Vector2 prevPosicao = { 960.0f, 960.0f };
     float raio = 20.0f;
 
-    // Colisões sólidas por mapa (restaura prevPosicao se colidir)
-    if (mapaAtual == MAPA_SALA_1 || mapaAtual == MAPA_SALA_2) {
+    if (salaAtual == SALA_CINEMA_1 || salaAtual == SALA_CINEMA_2) {
         if (CheckCollisionCircleRec(player->posicao, raio, telaBloco)        ||
             CheckCollisionCircleRec(player->posicao, raio, poltronasEsq)     ||
             CheckCollisionCircleRec(player->posicao, raio, poltronasDirr)    ||
@@ -193,178 +161,89 @@ TelaAtual UpdateGameplay(Personagem *player) {
             CheckCollisionCircleRec(player->posicao, raio, poltronasCentDir))
             player->posicao = prevPosicao;
     }
-    if (mapaAtual == MAPA_BANHEIRO_FEM) {
+    if (salaAtual == SALA_BANHEIRO_FEM) {
         if (CheckCollisionCircleRec(player->posicao, raio, cabinesBanheiroFem) ||
             CheckCollisionCircleRec(player->posicao, raio, piasBanheiroFem))
             player->posicao = prevPosicao;
     }
-    if (mapaAtual == MAPA_BANHEIRO_MASC) {
+    if (salaAtual == SALA_BANHEIRO_MASC) {
         if (CheckCollisionCircleRec(player->posicao, raio, cabinesBanheiroMasc) ||
             CheckCollisionCircleRec(player->posicao, raio, piasBanheiroMasc))
             player->posicao = prevPosicao;
     }
-    if (mapaAtual == MAPA_SALA_ZELADOR) {
+    if (salaAtual == SALA_ZELADOR) {
         if (CheckCollisionCircleRec(player->posicao, raio, armarioZelador) ||
             CheckCollisionCircleRec(player->posicao, raio, caixasZelador))
             player->posicao = prevPosicao;
     }
 
-    // Bounds globais
     if (player->posicao.x < raio)           player->posicao.x = raio;
     if (player->posicao.x > 1920.0f - raio) player->posicao.x = 1920.0f - raio;
     if (player->posicao.y < raio)           player->posicao.y = raio;
     if (player->posicao.y > 1080.0f - raio) player->posicao.y = 1080.0f - raio;
 
-    // Decrementa timers de feedback
     if (portaBloqueadaMsgTimer > 0) portaBloqueadaMsgTimer--;
     if (portaChaveMsgTimer     > 0) portaChaveMsgTimer--;
     portaChavePrompt = false;
 
     bool clicouEsquerdo = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 
-    // --- Função auxiliar: acha o índice do slot que contém o tipo ---
-    // (usada para selecionar o slot certo antes de RemoverItemAtivo)
-    #define SELECIONAR_SLOT_POR_TIPO(inv, tipo)                             \
-        do {                                                                \
-            SlotInventario *_c = (inv).cabeca;                              \
-            while (_c) {                                                    \
-                if (_c->item == (tipo)) {                                   \
-                    TrocarSlotAtivo(&(inv), _c->indice);                    \
-                    break;                                                  \
-                }                                                           \
-                _c = _c->proximo;                                           \
-            }                                                               \
-        } while (0)
-
-    #define TENTAR_ABRIR(portaAberta, tipoChave)                                        \
-        do {                                                                            \
-            if (!(portaAberta)) {                                                       \
-                if (BuscarItem(&player->inventario, tipoChave)) {                       \
-                    portaChavePrompt   = true;                                          \
-                    portaChaveMsgTimer = 5;                                             \
-                    if (clicouEsquerdo) {                                               \
-                        SELECIONAR_SLOT_POR_TIPO(player->inventario, tipoChave);        \
-                        RemoverItemAtivo(&player->inventario);                          \
-                        portaAberta    = true;                                          \
-                        clicouEsquerdo = false;                                         \
-                    }                                                                   \
-                } else {                                                                \
-                    portaBloqueadaMsgTimer = 120;                                       \
-                }                                                                       \
-            }                                                                           \
-        } while (0)
-
-    // Transições de mapa por porta
-    switch (mapaAtual) {
-        case MAPA_SAGUAO:
-            if (CheckCollisionCircleRec(player->posicao, raio, portaCorredor1)) {
-                mapaAtual = MAPA_CORREDOR_1; player->posicao = (Vector2){ 1750.0f, 540.0f };
-            } else if (CheckCollisionCircleRec(player->posicao, raio, portaCorredor2)) {
-                mapaAtual = MAPA_CORREDOR_2; player->posicao = (Vector2){ 150.0f, 540.0f };
-            } else if (CheckCollisionCircleRec(player->posicao, raio, portaSaida)) {
-                player->posicao = (Vector2){ 960.0f, 1050.0f };
+    Aresta *porta = VerificarColisaoPorta(&grafo, salaAtual, player->posicao, raio);
+    if (porta) {
+        if (porta->bloqueada) {
+            if (BuscarItem(&player->inventario, porta->chaveNecessaria)) {
+                portaChavePrompt   = true;
+                portaChaveMsgTimer = 5;
+                if (clicouEsquerdo) {
+                    SlotInventario *c = player->inventario.cabeca;
+                    while (c) {
+                        if (c->item == porta->chaveNecessaria) {
+                            TrocarSlotAtivo(&player->inventario, c->indice);
+                            break;
+                        }
+                        c = c->proximo;
+                    }
+                    RemoverItemAtivo(&player->inventario);
+                    DesbloquearAcesso(&grafo, salaAtual, porta->destino);
+                    clicouEsquerdo = false;
+                }
+            } else {
+                portaBloqueadaMsgTimer = 120;
+            }
+        } else {
+            if (porta->destino == SALA_SAIDA) {
+                IrParaSala(&salaAtual, &player->posicao, porta);
+                salaAtual = SALA_SAGUAO;
                 return TELA_ENTRADA;
-            } else if (CheckCollisionCircleRec(player->posicao, raio, portaBanheiroFem)) {
-                if (portaBanheiroFemAberta) {
-                    mapaAtual = MAPA_BANHEIRO_FEM; player->posicao = (Vector2){ 960.0f, 540.0f };
-                } else {
-                    TENTAR_ABRIR(portaBanheiroFemAberta, ITEM_CHAVE_BANHEIRO_FEM);
-                }
-            } else if (CheckCollisionCircleRec(player->posicao, raio, portaBanheiroMasc)) {
-                if (portaBanheiroMascAberta) {
-                    mapaAtual = MAPA_BANHEIRO_MASC; player->posicao = (Vector2){ 960.0f, 540.0f };
-                } else {
-                    TENTAR_ABRIR(portaBanheiroMascAberta, ITEM_CHAVE_BANHEIRO_MASC);
-                }
-            } else if (CheckCollisionCircleRec(player->posicao, raio, portaZelador)) {
-                if (portaZeladorAberta) {
-                    mapaAtual = MAPA_SALA_ZELADOR; player->posicao = (Vector2){ 960.0f, 700.0f };
-                } else {
-                    TENTAR_ABRIR(portaZeladorAberta, ITEM_CHAVE);
-                }
             }
-            break;
-        case MAPA_CORREDOR_1:
-            if (CheckCollisionCircleRec(player->posicao, raio, portaDireita)) {
-                mapaAtual = MAPA_SAGUAO; player->posicao = (Vector2){ 250.0f, 100.0f };
-            } else if (CheckCollisionCircleRec(player->posicao, raio, portaEsquerda)) {
-                if (portaSala1Aberta) {
-                    mapaAtual = MAPA_SALA_1; player->posicao = (Vector2){ 80.0f, 800.0f };
-                } else {
-                    TENTAR_ABRIR(portaSala1Aberta, ITEM_CHAVE_SALA1);
-                }
-            }
-            break;
-        case MAPA_SALA_1:
-            if (CheckCollisionCircleRec(player->posicao, raio, portaSaidaSala1)) {
-                mapaAtual = MAPA_CORREDOR_1; player->posicao.x = 150.0f;
-            }
-            break;
-        case MAPA_CORREDOR_2:
-            if (CheckCollisionCircleRec(player->posicao, raio, portaDireita)) {
-                if (portaSala2Aberta) {
-                    mapaAtual = MAPA_SALA_2; player->posicao = (Vector2){ 1840.0f, 800.0f };
-                } else {
-                    TENTAR_ABRIR(portaSala2Aberta, ITEM_CHAVE_SALA2);
-                }
-            } else if (CheckCollisionCircleRec(player->posicao, raio, portaEsquerda)) {
-                mapaAtual = MAPA_SAGUAO; player->posicao = (Vector2){ 1650.0f, 100.0f };
-            }
-            break;
-        case MAPA_SALA_2:
-            if (CheckCollisionCircleRec(player->posicao, raio, portaSaidaSala2)) {
-                mapaAtual = MAPA_CORREDOR_2; player->posicao.x = 1750.0f;
-            }
-            break;
-        case MAPA_BANHEIRO_FEM:
-            if (CheckCollisionCircleRec(player->posicao, raio, portaSaidaQuarto)) {
-                mapaAtual = MAPA_SAGUAO; player->posicao = (Vector2){ 150.0f, 550.0f };
-            }
-            break;
-        case MAPA_BANHEIRO_MASC:
-            if (CheckCollisionCircleRec(player->posicao, raio, portaSaidaQuarto)) {
-                mapaAtual = MAPA_SAGUAO; player->posicao = (Vector2){ 1770.0f, 550.0f };
-            }
-            break;
-        case MAPA_SALA_ZELADOR:
-            if (CheckCollisionCircleRec(player->posicao, raio, portaSaidaQuarto)) {
-                mapaAtual = MAPA_SAGUAO; player->posicao = (Vector2){ 960.0f, 200.0f };
-            }
-            break;
+            IrParaSala(&salaAtual, &player->posicao, porta);
+        }
     }
 
-    #undef SELECIONAR_SLOT_POR_TIPO
-    #undef TENTAR_ABRIR
-
-    // Seleção de slot
     if (IsKeyPressed(KEY_ONE))   TrocarSlotAtivo(&player->inventario, 0);
     if (IsKeyPressed(KEY_TWO))   TrocarSlotAtivo(&player->inventario, 1);
     if (IsKeyPressed(KEY_THREE)) TrocarSlotAtivo(&player->inventario, 2);
 
-    // Clique esquerdo: vassoura limpa sujeira; saco coleta lixo
-    // (clicouEsquerdo já foi consumido se usou chave numa porta)
     if (clicouEsquerdo && player->inventario.ativo->item != ITEM_VAZIO) {
         TipoItem ativo = player->inventario.ativo->item;
         if (ativo == ITEM_VASSOURA) {
-            RemoverElementoProximo(&elementosChao, ELEMENTO_SUJEIRA, player->posicao, (int)mapaAtual, 80.0f);
+            RemoverElementoProximo(&elementosChao, ELEMENTO_SUJEIRA, player->posicao, (int)salaAtual, 80.0f);
         } else if (ativo == ITEM_SACO_LIXO && lixosNoSaco < MAX_LIXOS_SACO) {
-            if (RemoverElementoProximo(&elementosChao, ELEMENTO_LIXO, player->posicao, (int)mapaAtual, 80.0f))
+            if (RemoverElementoProximo(&elementosChao, ELEMENTO_LIXO, player->posicao, (int)salaAtual, 80.0f))
                 lixosNoSaco++;
         }
     }
 
-    // Q: larga item ativo no chão
     if (IsKeyPressed(KEY_Q) && player->inventario.ativo->item != ITEM_VAZIO) {
         TipoItem tipoAtivo = player->inventario.ativo->item;
         int dadosItem = (tipoAtivo == ITEM_SACO_LIXO) ? lixosNoSaco : 0;
         RemoverItemAtivo(&player->inventario);
-        LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)mapaAtual, dadosItem);
+        LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)salaAtual, dadosItem);
     }
 
-    // E: coleta (itens largados têm prioridade sobre pré-colocados)
     bool pressionouE = IsKeyPressed(KEY_E);
 
-    ItemChao *proximo = ItemChaoProximo(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
+    ItemChao *proximo = ItemChaoProximo(&itensChao, player->posicao, (int)salaAtual, 50.0f);
     if (proximo != NULL && pressionouE) {
         pressionouE = false;
         int dadosChao = proximo->dados;
@@ -372,19 +251,19 @@ TelaAtual UpdateGameplay(Personagem *player) {
             TipoItem tipoAtivo  = player->inventario.ativo->item;
             int      dadosAtivo = (tipoAtivo == ITEM_SACO_LIXO) ? lixosNoSaco : 0;
             RemoverItemAtivo(&player->inventario);
-            TipoItem tipoChao = ColetarItemChao(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
+            TipoItem tipoChao = ColetarItemChao(&itensChao, player->posicao, (int)salaAtual, 50.0f);
             AdicionarItem(&player->inventario, tipoChao);
-            LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)mapaAtual, dadosAtivo);
+            LargarItemChao(&itensChao, tipoAtivo, player->posicao, (int)salaAtual, dadosAtivo);
             if (tipoChao == ITEM_SACO_LIXO) lixosNoSaco = dadosChao;
         } else {
-            TipoItem tipoChao = ColetarItemChao(&itensChao, player->posicao, (int)mapaAtual, 50.0f);
+            TipoItem tipoChao = ColetarItemChao(&itensChao, player->posicao, (int)salaAtual, 50.0f);
             AdicionarItem(&player->inventario, tipoChao);
             if (tipoChao == ITEM_SACO_LIXO) lixosNoSaco = dadosChao;
         }
     }
 
     for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
-        if (itensMundo[i].coletado || itensMundo[i].mapa != mapaAtual) continue;
+        if (itensMundo[i].coletado || itensMundo[i].mapa != salaAtual) continue;
         float dx = player->posicao.x - itensMundo[i].posicao.x;
         float dy = player->posicao.y - itensMundo[i].posicao.y;
         bool perto = (dx * dx + dy * dy) <= (itensMundo[i].raioColeta * itensMundo[i].raioColeta);
@@ -411,29 +290,46 @@ TelaAtual UpdateGameplay(Personagem *player) {
     return TELA_GAMEPLAY;
 }
 
+static void DesenharPortasDaSala(IdSala sala) {
+    Aresta *cur = grafo.nos[sala].adjacencias;
+    while (cur) {
+        Color cor;
+        switch (cur->destino) {
+            case SALA_CORREDOR_1:    cor = MAROON;   break;
+            case SALA_CORREDOR_2:    cor = DARKBLUE; break;
+            case SALA_BANHEIRO_FEM:  cor = PINK;     break;
+            case SALA_BANHEIRO_MASC: cor = SKYBLUE;  break;
+            case SALA_ZELADOR:       cor = BROWN;    break;
+            case SALA_CINEMA_1:      cor = MAROON;   break;
+            case SALA_CINEMA_2:      cor = DARKBLUE; break;
+            case SALA_SAIDA:         cor = GOLD;     break;
+            case SALA_SAGUAO:        cor = GRAY;     break;
+            default:                 cor = LIGHTGRAY;break;
+        }
+        DrawRectangleRec(cur->gatilho, cor);
+        cur = cur->proxima;
+    }
+}
+
 void DrawGameplay(Personagem player) {
-    switch (mapaAtual) {
-        case MAPA_SAGUAO:
+    switch (salaAtual) {
+        case SALA_SAGUAO:
             ClearBackground(DARKGRAY);
+            DesenharPortasDaSala(salaAtual);
             DrawText("SAGUAO PRINCIPAL", 800, 50, 40, WHITE);
-            DrawRectangleRec(portaCorredor1, MAROON);
-            DrawRectangleRec(portaCorredor2, DARKBLUE);
-            DrawRectangleRec(portaSaida, GOLD);
-            DrawText("SAIDA", 910, 950, 30, DARKGRAY);
-            DrawRectangleRec(portaBanheiroFem, PINK);
-            DrawText("WC F", 12, 535, 20, WHITE);
-            DrawRectangleRec(portaBanheiroMasc, SKYBLUE);
-            DrawText("WC M", 1826, 535, 20, WHITE);
-            DrawRectangleRec(portaZelador, BROWN);
-            DrawText("ZELADOR", 880, 110, 18, WHITE);
+            DrawText("SAIDA",   910,  950, 30, DARKGRAY);
+            DrawText("COR 1",    20,   90, 20, WHITE);
+            DrawText("COR 2",  1750,   90, 20, WHITE);
+            DrawText("WC F",     12,  535, 20, WHITE);
+            DrawText("WC M",   1826,  535, 20, WHITE);
+            DrawText("ZELADOR", 880,  110, 18, WHITE);
             break;
-        case MAPA_CORREDOR_1:
+        case SALA_CORREDOR_1:
             ClearBackground(BLACK);
+            DesenharPortasDaSala(salaAtual);
             DrawText("CORREDOR 1", 850, 50, 40, MAROON);
-            DrawRectangleRec(portaEsquerda, GRAY);
-            DrawRectangleRec(portaDireita, MAROON);
             break;
-        case MAPA_SALA_1:
+        case SALA_CINEMA_1:
             ClearBackground(DARKGRAY);
             DrawRectangle(0, 0, 1920, 300, GRAY);
             DrawRectangleRec(telaBloco, RAYWHITE);
@@ -441,15 +337,15 @@ void DrawGameplay(Personagem player) {
             DrawRectangleRec(poltronasDirr, BROWN);
             DrawRectangleRec(poltronasCentEsq, BROWN);
             DrawRectangleRec(poltronasCentDir, BROWN);
-            DrawRectangleRec(portaSaidaSala1, MAROON);
+            DesenharPortasDaSala(salaAtual);
+            DrawText("SAIDA", 1830, 940, 22, WHITE);
             break;
-        case MAPA_CORREDOR_2:
+        case SALA_CORREDOR_2:
             ClearBackground(BLACK);
+            DesenharPortasDaSala(salaAtual);
             DrawText("CORREDOR 2", 850, 50, 40, DARKBLUE);
-            DrawRectangleRec(portaEsquerda, GRAY);
-            DrawRectangleRec(portaDireita, DARKBLUE);
             break;
-        case MAPA_SALA_2:
+        case SALA_CINEMA_2:
             ClearBackground(DARKGRAY);
             DrawRectangle(0, 0, 1920, 300, GRAY);
             DrawRectangleRec(telaBloco, RAYWHITE);
@@ -457,43 +353,47 @@ void DrawGameplay(Personagem player) {
             DrawRectangleRec(poltronasDirr, BROWN);
             DrawRectangleRec(poltronasCentEsq, BROWN);
             DrawRectangleRec(poltronasCentDir, BROWN);
-            DrawRectangleRec(portaSaidaSala2, DARKBLUE);
+            DesenharPortasDaSala(salaAtual);
+            DrawText("SAIDA", 10, 940, 22, WHITE);
             break;
-        case MAPA_BANHEIRO_FEM:
+        case SALA_BANHEIRO_FEM:
             ClearBackground((Color){ 220, 180, 220, 255 });
-            DrawText("BANHEIRO FEMININO", 700, 50, 40, WHITE);
             DrawRectangleRec(cabinesBanheiroFem, (Color){ 180, 140, 180, 255 });
-            DrawText("CABINES", 55, 400, 20, WHITE);
             DrawRectangleRec(piasBanheiroFem, LIGHTGRAY);
+            DesenharPortasDaSala(salaAtual);
+            DrawText("BANHEIRO FEMININO", 700, 50, 40, WHITE);
+            DrawText("CABINES", 55, 400, 20, WHITE);
             DrawText("PIAS", 1745, 160, 20, DARKGRAY);
-            DrawRectangleRec(portaSaidaQuarto, GOLD);
-            DrawText("SAIDA", 910, 950, 30, DARKGRAY);
+            DrawText("SAIDA", 1830, 530, 22, WHITE);
             break;
-        case MAPA_BANHEIRO_MASC:
+        case SALA_BANHEIRO_MASC:
             ClearBackground((Color){ 180, 210, 230, 255 });
-            DrawText("BANHEIRO MASCULINO", 680, 50, 40, WHITE);
             DrawRectangleRec(cabinesBanheiroMasc, (Color){ 140, 170, 200, 255 });
-            DrawText("CABINES", 1730, 400, 20, WHITE);
             DrawRectangleRec(piasBanheiroMasc, LIGHTGRAY);
+            DesenharPortasDaSala(salaAtual);
+            DrawText("BANHEIRO MASCULINO", 680, 50, 40, WHITE);
+            DrawText("CABINES", 1730, 400, 20, WHITE);
             DrawText("PIAS", 80, 160, 20, DARKGRAY);
-            DrawRectangleRec(portaSaidaQuarto, GOLD);
+            DrawText("SAIDA", 10, 530, 22, WHITE);
+            break;
+        case SALA_ZELADOR:
+            ClearBackground((Color){ 120, 100, 80, 255 });
+            DrawRectangleRec(armarioZelador, (Color){ 80, 60, 40, 255 });
+            DrawRectangleRec(caixasZelador, (Color){ 160, 120, 70, 255 });
+            DesenharPortasDaSala(salaAtual);
+            DrawText("SALA DO ZELADOR", 730, 50, 40, BEIGE);
+            DrawText("ARMARIO", 100, 145, 20, BEIGE);
+            DrawText("CAIXAS", 820, 260, 20, DARKBROWN);
             DrawText("SAIDA", 910, 950, 30, DARKGRAY);
             break;
-        case MAPA_SALA_ZELADOR:
-            ClearBackground((Color){ 120, 100, 80, 255 });
-            DrawText("SALA DO ZELADOR", 730, 50, 40, BEIGE);
-            DrawRectangleRec(armarioZelador, (Color){ 80, 60, 40, 255 });
-            DrawText("ARMARIO", 100, 145, 20, BEIGE);
-            DrawRectangleRec(caixasZelador, (Color){ 160, 120, 70, 255 });
-            DrawText("CAIXAS", 820, 260, 20, DARKBROWN);
-            DrawRectangleRec(portaSaidaQuarto, GOLD);
-            DrawText("SAIDA", 910, 950, 30, DARKGRAY);
+        default:
+            ClearBackground(BLACK);
+            DesenharPortasDaSala(salaAtual);
             break;
     }
 
-    // Itens pré-colocados no mundo
     for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
-        if (itensMundo[i].coletado || itensMundo[i].mapa != mapaAtual) continue;
+        if (itensMundo[i].coletado || itensMundo[i].mapa != salaAtual) continue;
         Vector2 pos = itensMundo[i].posicao;
         DrawCircle((int)pos.x, (int)pos.y, 14.0f, BLACK);
         DrawCircle((int)pos.x, (int)pos.y, 12.0f, CorItem(itensMundo[i].tipo));
@@ -507,31 +407,29 @@ void DrawGameplay(Personagem player) {
         }
     }
 
-    // Itens largados no chão (lista simplesmente encadeada)
-    ItemChao *cur = itensChao.cabeca;
-    while (cur != NULL) {
-        if (cur->mapaId == (int)mapaAtual) {
-            DrawCircle((int)cur->posicao.x, (int)cur->posicao.y, 14.0f, BLACK);
-            DrawCircle((int)cur->posicao.x, (int)cur->posicao.y, 12.0f, CorItem(cur->tipo));
-            DrawText(NomeItem(cur->tipo), (int)cur->posicao.x - 20, (int)cur->posicao.y - 30, 16, WHITE);
-            float dx = player.posicao.x - cur->posicao.x;
-            float dy = player.posicao.y - cur->posicao.y;
+    ItemChao *curItem = itensChao.cabeca;
+    while (curItem != NULL) {
+        if (curItem->mapaId == (int)salaAtual) {
+            DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 14.0f, BLACK);
+            DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 12.0f, CorItem(curItem->tipo));
+            DrawText(NomeItem(curItem->tipo), (int)curItem->posicao.x - 20, (int)curItem->posicao.y - 30, 16, WHITE);
+            float dx = player.posicao.x - curItem->posicao.x;
+            float dy = player.posicao.y - curItem->posicao.y;
             if ((dx * dx + dy * dy) <= (50.0f * 50.0f)) {
                 const char *prompt = InventarioEstaCheio(&player.inventario)
-                    ? TextFormat("[E] Trocar por %s", NomeItem(cur->tipo))
-                    : TextFormat("[E] Pegar %s",      NomeItem(cur->tipo));
-                DrawText(prompt, (int)cur->posicao.x - 90, (int)cur->posicao.y - 50, 18, YELLOW);
+                    ? TextFormat("[E] Trocar por %s", NomeItem(curItem->tipo))
+                    : TextFormat("[E] Pegar %s",      NomeItem(curItem->tipo));
+                DrawText(prompt, (int)curItem->posicao.x - 90, (int)curItem->posicao.y - 50, 18, YELLOW);
             }
         }
-        cur = cur->proximo;
+        curItem = curItem->proximo;
     }
 
-    // Elementos no chão (lista circular encadeada)
     if (elementosChao.cabeca != NULL) {
         TipoItem itemAtivo = player.inventario.ativo->item;
         NodoElemento *curE = elementosChao.cabeca;
         do {
-            if (curE->mapaId == (int)mapaAtual) {
+            if (curE->mapaId == (int)salaAtual) {
                 Vector2 pos = curE->posicao;
                 if (curE->tipo == ELEMENTO_SUJEIRA) {
                     DrawCircle((int)pos.x, (int)pos.y, 10.0f, (Color){ 150, 120, 80, 200 });
@@ -575,13 +473,11 @@ void DrawGameplay(Personagem player) {
         DrawText(TextFormat("Lixo: %d/%d", lixosNoSaco, MAX_LIXOS_SACO),
                  20, 20, 22, lixosNoSaco >= MAX_LIXOS_SACO ? RED : WHITE);
 
-    // Prompt de uso de chave (aparece enquanto está na colisão)
     if (portaChavePrompt || portaChaveMsgTimer > 0) {
         DrawRectangle(560, 490, 800, 100, Fade(BLACK, 0.75f));
         DrawText("[CLIQUE] Usar chave para abrir", 600, 525, 28, YELLOW);
     }
 
-    // Mensagem de porta bloqueada (sem chave)
     if (portaBloqueadaMsgTimer > 0) {
         DrawRectangle(560, 490, 800, 100, Fade(BLACK, 0.75f));
         DrawText("Trancado. Voce precisa de uma chave.", 580, 525, 28, RED);
