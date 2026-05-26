@@ -14,26 +14,32 @@ void UnloadIntro(void) {
 }
 
 
-static bool lendoDialogo = true; 
+static bool lendoDialogo = true;
+static bool posicionouNaPonte = false;
 
 TelaAtual UpdateIntro(Personagem *player) {
-    
+    if (!posicionouNaPonte) {
+        player->posicao.x = 5.0f;
+        player->posicao.y = 970.0f;
+        posicionouNaPonte = true;
+    }
 
     if (lendoDialogo) {
         if (IsKeyPressed(KEY_ENTER)) {
-            lendoDialogo = false; 
+            lendoDialogo = false;
         }
         return TELA_INTRO;
     }
     if (iniciandoTransicao) {
-        fadeAlpha += 0.01f; 
-        
+        fadeAlpha += 0.01f;
+
         if (fadeAlpha >= 1.0f) {
             fadeAlpha = 0.0f;
             iniciandoTransicao = false;
-            
-            lendoDialogo = true; 
-            
+
+            lendoDialogo = true;
+            posicionouNaPonte = false;
+
             player->posicao.x = 960.0f;
             player->posicao.y = 1050.0f;
 

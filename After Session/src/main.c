@@ -26,6 +26,8 @@ int main() {
 
     while (!WindowShouldClose()) {
 
+        if (IsKeyPressed(KEY_F11)) ToggleFullscreen();
+
         switch (tela) {
             case TELA_START:
                 tela = UpdateStartScreen();
