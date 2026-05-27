@@ -11,7 +11,7 @@ static bool grafoInicializado = false;
 static IdSala salaAtual = SALA_SAGUAO;
 static FilaInimigos filaInimigos;
 static bool filaInicializada = false;
-static bool primeiraChaveColetada = false;
+static bool aparicoesAtivadas = false;
 
 static ListaExpediente expediente;
 static bool expedienteInicializado = false;
@@ -139,6 +139,31 @@ float GameplayTempoDecorrido(void) {
     return tempoDecorrido;
 }
 
+static void EnfileirarInimigosPadrao(void) {
+    for (int i = 0; i < 5; i++) {
+        Inimigo inimigo;
+        inimigo.posicao.x  = (float)GetRandomValue(200, 1720);
+        inimigo.posicao.y  = (float)GetRandomValue(200, 880);
+        inimigo.velocidade = 3.25f;
+        inimigo.raio       = 20.0f;
+        inimigo.tipo       = i % 3;
+        inimigo.ativo      = false;
+        inimigo.tempoVida  = 0.0f;
+        EnfileirarInimigo(&filaInimigos, inimigo);
+    }
+}
+
+static void ResetarInimigos(void) {
+    filaInimigos.inicio  = 0;
+    filaInimigos.fim     = 0;
+    filaInimigos.tamanho = 0;
+    for (int i = 0; i < FILA_INIMIGOS_MAX; i++) {
+        filaInimigos.inimigos[i].ativo = false;
+    }
+    filaInimigos.tempoProximaAparicao = filaInimigos.intervaloAparicao;
+    EnfileirarInimigosPadrao();
+}
+
 TelaAtual UpdateGameplay(Personagem *player) {
     if (!grafoInicializado) {
         InicializarGrafo(&grafo);
@@ -163,27 +188,27 @@ TelaAtual UpdateGameplay(Personagem *player) {
     }
 
     if (!filaInicializada) {
-        InicializarFilaInimigos(&filaInimigos, 2.0f);
-
-        for (int i = 0; i < 5; i++) {
-            Inimigo inimigo;
-            inimigo.posicao.x = (float)GetRandomValue(200, 1720);
-            inimigo.posicao.y = (float)GetRandomValue(200, 880);
-            inimigo.velocidade = 150.0f;
-            inimigo.raio = 20.0f;
-            inimigo.tipo = i % 3;
-            inimigo.ativo = false;
-            inimigo.tempoVida = 0.0f;
-            EnfileirarInimigo(&filaInimigos, inimigo);
-        }
+        InicializarFilaInimigos(&filaInimigos, 3.0f);
+        EnfileirarInimigosPadrao();
         filaInicializada = true;
     }
 
-    AtualizarFilaInimigos(&filaInimigos);
+    AtualizarFilaInimigos(&filaInimigos, player->posicao);
+    AtualizarMovimentoInimigos(&filaInimigos, player->posicao);
+
+    if (ColisaoComInimigos(&filaInimigos, player->posicao, 20.0f)) {
+        return TELA_GAME_OVER;
+    }
 
     AtualizarExpediente(&expediente, GetFrameTime());
     if (VerificarVitoria(&expediente)) {
         return LimpezaCompleta() ? TELA_NOME : TELA_GAME_OVER;
+    }
+
+    if (!aparicoesAtivadas &&
+        expediente.atual != NULL && expediente.atual->hora == 0) {
+        AtivarAparicaoInimigos(&filaInimigos);
+        aparicoesAtivadas = true;
     }
 
     static Vector2 prevPosicao = { 960.0f, 960.0f };
@@ -262,9 +287,11 @@ TelaAtual UpdateGameplay(Personagem *player) {
                     return TELA_NOME;
                 }
                 salaAtual = SALA_SAGUAO;
+                ResetarInimigos();
                 return TELA_ENTRADA;
             }
             IrParaSala(&salaAtual, &player->posicao, porta);
+            ResetarInimigos();
         }
     }
 
@@ -321,14 +348,9 @@ TelaAtual UpdateGameplay(Personagem *player) {
                 itensMundo[i].coletado = true;
                 if (itensMundo[i].tipo == ITEM_SACO_LIXO) lixosNoSaco = 0;
 
-                if (!primeiraChaveColetada &&
-                    (itensMundo[i].tipo == ITEM_CHAVE ||
-                     itensMundo[i].tipo == ITEM_CHAVE_SALA1 ||
-                     itensMundo[i].tipo == ITEM_CHAVE_SALA2 ||
-                     itensMundo[i].tipo == ITEM_CHAVE_BANHEIRO_FEM ||
-                     itensMundo[i].tipo == ITEM_CHAVE_BANHEIRO_MASC)) {
+                if (!aparicoesAtivadas && itensMundo[i].tipo == ITEM_CHAVE) {
                     AtivarAparicaoInimigos(&filaInimigos);
-                    primeiraChaveColetada = true;
+                    aparicoesAtivadas = true;
                 }
             }
         }

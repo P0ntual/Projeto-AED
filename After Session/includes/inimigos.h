@@ -34,9 +34,12 @@ bool FilaEstaVazia(const FilaInimigos *fila);
 bool FilaEstaCheia(const FilaInimigos *fila);
 int TamanhoFila(const FilaInimigos *fila);
 
-void AtualizarFilaInimigos(FilaInimigos *fila);
+void AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos);
 Inimigo *ObterProximoInimigo(FilaInimigos *fila);
 void RemoverInimigoAtivo(FilaInimigos *fila, int indice);
+
+void AtualizarMovimentoInimigos(FilaInimigos *fila, Vector2 alvo);
+bool ColisaoComInimigos(const FilaInimigos *fila, Vector2 pos, float raio);
 
 void AtivarAparicaoInimigos(FilaInimigos *fila);
 void DesativarAparicaoInimigos(FilaInimigos *fila);
