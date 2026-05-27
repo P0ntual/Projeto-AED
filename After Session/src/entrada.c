@@ -2,34 +2,70 @@
 #include "raylib.h"
 
 static Texture2D telaEntrada;
+static Texture2D spriteAndandoDireita;
+static Texture2D spriteAndandoEsquerda;
+static Texture2D spriteParadoDireita;
+static Texture2D spriteParadoEsquerda;
+
 static Rectangle portaEntrada = { 500, 800, 920, 200 };
 
 static bool iniciandoTransicao = false;
 static float fadeAlpha = 0.0f;
 
+static float animTimer      = 0.0f;
+static bool  frameAndando   = false;
+static bool  virandoDireita = true;
+
 void InitEntrada(void) {
-    telaEntrada = LoadTexture("assets/images/tela_frente.png");
+    telaEntrada           = LoadTexture("assets/images/universal/tela_frente.png");
+    spriteAndandoDireita  = LoadTexture("assets/images/zelezinho/Zelezinho andando direita.png");
+    spriteAndandoEsquerda = LoadTexture("assets/images/zelezinho/Zelezinho andando esquerda.png");
+    spriteParadoDireita   = LoadTexture("assets/images/zelezinho/Zelezinho parado direita.png");
+    spriteParadoEsquerda  = LoadTexture("assets/images/zelezinho/Zelezinho parado esquerda.png");
 }
 
 void UnloadEntrada(void) {
     UnloadTexture(telaEntrada);
+    UnloadTexture(spriteAndandoDireita);
+    UnloadTexture(spriteAndandoEsquerda);
+    UnloadTexture(spriteParadoDireita);
+    UnloadTexture(spriteParadoEsquerda);
 }
 
 TelaAtual UpdateEntrada(Personagem *player) {
     float raio = 20.0f;
 
-    if (player->posicao.x < raio) player->posicao.x = raio;
+    if (player->posicao.x < raio)           player->posicao.x = raio;
     if (player->posicao.x > 1920.0f - raio) player->posicao.x = 1920.0f - raio;
-    if (player->posicao.y < raio) player->posicao.y = raio;
+    if (player->posicao.y < raio)           player->posicao.y = raio;
     if (player->posicao.y > 1080.0f - raio) player->posicao.y = 1080.0f - raio;
+
+    bool pressionouD = IsKeyDown(KEY_D);
+    bool pressionouA = IsKeyDown(KEY_A);
+    bool pressionouW = IsKeyDown(KEY_W);
+    bool pressionouS = IsKeyDown(KEY_S);
+    bool movendo     = pressionouD || pressionouA || pressionouW || pressionouS;
+
+    if (pressionouD) virandoDireita = true;
+    if (pressionouA) virandoDireita = false;
+
+    if (movendo) {
+        animTimer += GetFrameTime();
+        if (animTimer >= 0.18f) { animTimer = 0.0f; frameAndando = !frameAndando; }
+    } else {
+        frameAndando = false;
+        animTimer    = 0.0f;
+    }
 
     if (iniciandoTransicao) {
         fadeAlpha += 0.02f;
         if (fadeAlpha >= 1.0f) {
-            fadeAlpha = 0.0f;
+            fadeAlpha          = 0.0f;
             iniciandoTransicao = false;
-            player->posicao.x = 960.0f;
-            player->posicao.y = 700.0f;
+            frameAndando       = false;
+            animTimer          = 0.0f;
+            player->posicao.x  = 960.0f;
+            player->posicao.y  = 700.0f;
             return TELA_GAMEPLAY;
         }
         return TELA_ENTRADA;
@@ -50,7 +86,18 @@ void DrawEntrada(Personagem player) {
         (Rectangle){ 0, 0, 1920, 1080 },
         (Vector2){ 0, 0 }, 0.0f, WHITE);
 
-    DrawPersonagem(player);
+    Texture2D sprite = virandoDireita
+        ? (frameAndando ? spriteAndandoDireita  : spriteParadoDireita)
+        : (frameAndando ? spriteAndandoEsquerda : spriteParadoEsquerda);
+
+    Rectangle src  = { 0, 0, 1254, 1254 };
+    float     disp = 500.0f;
+    Rectangle dest = {
+        player.posicao.x - disp * 0.5f,
+        player.posicao.y - disp * 0.50f,
+        disp, disp
+    };
+    DrawTexturePro(sprite, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
 
     if (iniciandoTransicao) {
         DrawRectangle(0, 0, 1920, 1080, Fade(BLACK, fadeAlpha));

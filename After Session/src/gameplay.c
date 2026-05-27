@@ -20,6 +20,9 @@ static bool chaoSalaCarregado = false;
 static Texture2D bilheteriaTexture;
 static bool bilheteriaCarregada = false;
 
+static Texture2D sacoLixoTexture;
+static bool sacoLixoCarregado = false;
+
 static GrafoMapa grafo;
 static bool grafoInicializado = false;
 
@@ -259,12 +262,12 @@ static void ResetarInimigos(void) {
 
 TelaAtual UpdateGameplay(Personagem *player) {
     if (!chaoCarregado) {
-        chaoTexture = LoadTexture("assets/images/chao corredor.png");
+        chaoTexture = LoadTexture("assets/images/corredor/chao corredor.png");
         chaoCarregado = true;
     }
 
     if (!chaoBanheiroCarregado) {
-        chaoBanheiroTexture = LoadTexture("assets/images/chao banheiro.png");
+        chaoBanheiroTexture = LoadTexture("assets/images/banheiros/chao banheiro.png");
         chaoBanheiroCarregado = true;
     }
 
@@ -274,8 +277,13 @@ TelaAtual UpdateGameplay(Personagem *player) {
     }
 
     if (!bilheteriaCarregada) {
-        bilheteriaTexture = LoadTexture("assets/images/bilheteria.png");
+        bilheteriaTexture = LoadTexture("assets/images/sala entrada/bilheteria.png");
         bilheteriaCarregada = true;
+    }
+
+    if (!sacoLixoCarregado) {
+        sacoLixoTexture = LoadTexture("assets/images/itens/saco de lixo.png");
+        sacoLixoCarregado = true;
     }
 
     if (!grafoInicializado) {
@@ -651,8 +659,13 @@ void DrawGameplay(Personagem player) {
     for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
         if (itensMundo[i].coletado || itensMundo[i].mapa != salaAtual) continue;
         Vector2 pos = itensMundo[i].posicao;
-        DrawCircle((int)pos.x, (int)pos.y, 14.0f, BLACK);
-        DrawCircle((int)pos.x, (int)pos.y, 12.0f, CorItem(itensMundo[i].tipo));
+        if (itensMundo[i].tipo == ITEM_SACO_LIXO) {
+            DrawTexturePro(sacoLixoTexture, (Rectangle){0,0,80,48},
+                (Rectangle){pos.x - 40, pos.y - 24, 80, 48}, (Vector2){0,0}, 0.0f, WHITE);
+        } else {
+            DrawCircle((int)pos.x, (int)pos.y, 14.0f, BLACK);
+            DrawCircle((int)pos.x, (int)pos.y, 12.0f, CorItem(itensMundo[i].tipo));
+        }
         DrawTextF(NomeItem(itensMundo[i].tipo), (int)pos.x - 20, (int)pos.y - 30, 16, WHITE);
         float dx = player.posicao.x - pos.x;
         float dy = player.posicao.y - pos.y;
@@ -666,8 +679,14 @@ void DrawGameplay(Personagem player) {
     ItemChao *curItem = itensChao.cabeca;
     while (curItem != NULL) {
         if (curItem->mapaId == (int)salaAtual) {
-            DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 14.0f, BLACK);
-            DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 12.0f, CorItem(curItem->tipo));
+            if (curItem->tipo == ITEM_SACO_LIXO) {
+                DrawTexturePro(sacoLixoTexture, (Rectangle){0,0,80,48},
+                    (Rectangle){curItem->posicao.x - 40, curItem->posicao.y - 24, 80, 48},
+                    (Vector2){0,0}, 0.0f, WHITE);
+            } else {
+                DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 14.0f, BLACK);
+                DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 12.0f, CorItem(curItem->tipo));
+            }
             DrawTextF(NomeItem(curItem->tipo), (int)curItem->posicao.x - 20, (int)curItem->posicao.y - 30, 16, WHITE);
             float dx = player.posicao.x - curItem->posicao.x;
             float dy = player.posicao.y - curItem->posicao.y;
