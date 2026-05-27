@@ -394,6 +394,14 @@ TelaAtual UpdateGameplay(Personagem *player) {
     if (IsKeyPressed(KEY_TWO))   TrocarSlotAtivo(&player->inventario, 1);
     if (IsKeyPressed(KEY_THREE)) TrocarSlotAtivo(&player->inventario, 2);
 
+    float scroll = GetMouseWheelMove();
+    if (scroll != 0.0f) {
+        int novoIdx = player->inventario.ativo->indice;
+        if (scroll > 0.0f) novoIdx = (novoIdx - 1 + INVENTARIO_SLOTS) % INVENTARIO_SLOTS;
+        else               novoIdx = (novoIdx + 1) % INVENTARIO_SLOTS;
+        TrocarSlotAtivo(&player->inventario, novoIdx);
+    }
+
     if (clicouEsquerdo && player->inventario.ativo->item != ITEM_VAZIO) {
         TipoItem ativo = player->inventario.ativo->item;
         if (ativo == ITEM_VASSOURA) {
