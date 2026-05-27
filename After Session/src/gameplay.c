@@ -44,6 +44,9 @@ static bool cartazesCarregado = false;
 static Texture2D portaTopdownTexture;
 static bool portasCarregadas = false;
 
+static Texture2D espelhosTexture;
+static bool espelhosCarregado = false;
+
 static Texture2D pipocaTexture;
 static Texture2D pepiBlackTexture;
 static bool sujeirasCarregadas = false;
@@ -352,7 +355,10 @@ TelaAtual UpdateGameplay(Personagem *player) {
         portasCarregadas = true;
     }
 
-
+    if (!espelhosCarregado) {
+        espelhosTexture = LoadTexture("assets/images/banheiros/espelhos.png");
+        espelhosCarregado = true;
+    }
 
     if (!grafoInicializado) {
         InicializarGrafo(&grafo);
@@ -666,6 +672,8 @@ void DrawGameplay(Personagem player) {
                     for (int tx = 0; tx < 1920; tx += 188)
                         DrawTextureRec(chaoBanheiroTexture, src, (Vector2){(float)tx, (float)ty}, WHITE);
             }
+            DrawTexturePro(espelhosTexture, (Rectangle){0,0,1921,1081},
+                (Rectangle){0,0,1920,200}, (Vector2){0,0}, 0.0f, WHITE);
             DrawRectangleRec(cabinesBanheiroFem, (Color){ 180, 140, 180, 255 });
             DrawRectangleRec(piasBanheiroFem, LIGHTGRAY);
             DesenharPortasDaSala(salaAtual);
@@ -682,6 +690,8 @@ void DrawGameplay(Personagem player) {
                     for (int tx = 0; tx < 1920; tx += 188)
                         DrawTextureRec(chaoBanheiroTexture, src, (Vector2){(float)tx, (float)ty}, WHITE);
             }
+            DrawTexturePro(espelhosTexture, (Rectangle){0,0,1921,1081},
+                (Rectangle){0,0,1920,200}, (Vector2){0,0}, 0.0f, WHITE);
             DrawRectangleRec(cabinesBanheiroMasc, (Color){ 140, 170, 200, 255 });
             DrawRectangleRec(piasBanheiroMasc, LIGHTGRAY);
             DesenharPortasDaSala(salaAtual);
