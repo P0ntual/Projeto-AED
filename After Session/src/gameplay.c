@@ -140,6 +140,22 @@ static bool LimpezaCompleta(void) {
     return elementosChao.cabeca == NULL;
 }
 
+typedef struct { int x0, y0, x1, y1; } AreaSpawn;
+
+static AreaSpawn areaSpawnDaSala(IdSala sala) {
+    switch (sala) {
+        case SALA_SAGUAO:        return (AreaSpawn){ 200, 280, 1680, 820 };
+        case SALA_CORREDOR_1:    return (AreaSpawn){ 200, 380, 1700, 700 };
+        case SALA_CORREDOR_2:    return (AreaSpawn){ 200, 380, 1700, 700 };
+        case SALA_CINEMA_1:      return (AreaSpawn){ 150, 800, 1700, 950 };
+        case SALA_CINEMA_2:      return (AreaSpawn){ 150, 800, 1700, 950 };
+        case SALA_BANHEIRO_FEM:  return (AreaSpawn){ 300, 350, 1500, 750 };
+        case SALA_BANHEIRO_MASC: return (AreaSpawn){ 300, 350, 1500, 750 };
+        case SALA_ZELADOR:       return (AreaSpawn){ 500, 500, 1750, 800 };
+        default:                 return (AreaSpawn){ 200, 200, 1700, 880 };
+    }
+}
+
 float GameplayTempoDecorrido(void) {
     return tempoDecorrido;
 }
@@ -258,7 +274,9 @@ TelaAtual UpdateGameplay(Personagem *player) {
         filaInicializada = true;
     }
 
-    AtualizarFilaInimigos(&filaInimigos, player->posicao);
+    AreaSpawn area = areaSpawnDaSala(salaAtual);
+    AtualizarFilaInimigos(&filaInimigos, player->posicao,
+                          area.x0, area.y0, area.x1, area.y1);
     AtualizarMovimentoInimigos(&filaInimigos, player->posicao);
 
     bool algumAtivo = false;

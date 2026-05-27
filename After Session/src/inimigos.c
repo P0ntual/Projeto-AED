@@ -54,7 +54,8 @@ int TamanhoFila(const FilaInimigos *fila) {
     return fila->tamanho;
 }
 
-bool AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos) {
+bool AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos,
+                           int x0, int y0, int x1, int y1) {
     if (!fila->permiteAparicao) return false;
 
     fila->tempoProximaAparicao -= GetFrameTime();
@@ -66,8 +67,8 @@ bool AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos) {
         const float distMin = 300.0f;
         const float distMinSqr = distMin * distMin;
         for (int tentativa = 0; tentativa < 30; tentativa++) {
-            inimigo.posicao.x = (float)GetRandomValue(200, 1720);
-            inimigo.posicao.y = (float)GetRandomValue(200, 880);
+            inimigo.posicao.x = (float)GetRandomValue(x0, x1);
+            inimigo.posicao.y = (float)GetRandomValue(y0, y1);
             float dx = inimigo.posicao.x - jogadorPos.x;
             float dy = inimigo.posicao.y - jogadorPos.y;
             if (dx*dx + dy*dy >= distMinSqr) break;
