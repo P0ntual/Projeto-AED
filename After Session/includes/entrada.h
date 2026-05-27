@@ -4,6 +4,8 @@
 #include "telas.h"
 #include "personagem.h"
 
+void InitEntrada(void);
+void UnloadEntrada(void);
 TelaAtual UpdateEntrada(Personagem *player);
 void DrawEntrada(Personagem player);
 

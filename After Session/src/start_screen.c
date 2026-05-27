@@ -13,7 +13,7 @@ static bool iniciandoTransicao = false;
 static float fadeAlpha = 0.0f;
 
 void InitStartScreen(void) {
-    telaInicial = LoadTexture("Tela inicial.png");
+    telaInicial = LoadTexture("assets/tela_inicial.png");
 }
 
 void UnloadStartScreen(void) {

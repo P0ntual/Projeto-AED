@@ -16,6 +16,7 @@ int main() {
     InicializarAudio();
     InitStartScreen();
     InitIntro();
+    InitEntrada();
 
     TelaAtual tela = TELA_START;
     TelaAtual telaAnterior = TELA_START;
@@ -165,6 +166,7 @@ int main() {
 
     UnloadStartScreen();
     UnloadIntro();
+    UnloadEntrada();
     EncerrarAudio();
     CloseWindow();
     return 0;

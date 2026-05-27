@@ -6,7 +6,7 @@ static bool iniciandoTransicao = false;
 static float fadeAlpha = 0.0f;
 
 void InitIntro(void) {
-    telaIntro = LoadTexture("tela intro.png");
+    telaIntro = LoadTexture("assets/tela_intro.png");
 }
 
 void UnloadIntro(void) {

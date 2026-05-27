@@ -20,7 +20,7 @@ static void pararMusicaAtual(void) {
 void TocarMusicaMenu(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("My_Mirror_Image.wav");
+    musicaAtual = LoadMusicStream("assets/My_Mirror_Image.wav");
     SetMusicVolume(musicaAtual, 0.6f);
     SetMusicPitch(musicaAtual, 1.0f);
     musicaAtual.looping = true;
@@ -30,7 +30,7 @@ void TocarMusicaMenu(void) {
 void TocarMusicaIntro(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("Haunting.wav");
+    musicaAtual = LoadMusicStream("assets/Haunting.wav");
     SetMusicVolume(musicaAtual, 0.6f);
     SetMusicPitch(musicaAtual, 1.0f);
     musicaAtual.looping = true;

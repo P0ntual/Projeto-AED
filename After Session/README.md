@@ -2,8 +2,6 @@
 
 Jogo de sobrevivência em perspectiva top-down desenvolvido em C com [raylib](https://www.raylib.com/). Você é um zelador contratado para limpar o **Cinema São Luiz** durante a madrugada — mas a noite vai ser mais longa do que parecia.
 
-> **Estado atual:** em desenvolvimento. A estrutura de telas, salas, movimentação e sistema de itens estão implementados. Inimigos (fantasmas) e a lógica de vitória/derrota ainda estão sendo desenvolvidos.
-
 ---
 
 ## Dependências
@@ -39,7 +37,7 @@ make run
 make clean
 ```
 
-O executável gerado é `./jogo` e deve ser rodado a partir da raiz do projeto (onde ficam os arquivos `.ogg`).
+O executável gerado é `./jogo` e deve ser rodado a partir da raiz do projeto.
 
 ---
 
@@ -52,24 +50,38 @@ O executável gerado é `./jogo` e deve ser rodado a partir da raiz do projeto (
 | `Q` | Largar item ativo no chão |
 | `1` `2` `3` | Selecionar slot do inventário |
 | `Enter` | Avançar diálogos |
+| `F11` | Alternar tela cheia |
 | `Clique` no botão PLAY | Iniciar o jogo |
+| `Clique` no botão RANKING | Ver ranking na tela inicial |
 
 ---
 
 ## Telas e fluxo do jogo
 
 ```
-TELA_START → TELA_INTRO → TELA_ENTRADA → TELA_GAMEPLAY → TELA_VITORIA
-                                                        → TELA_GAME_OVER
+TELA_START ──────────────────────────────────────────► TELA_RANKING
+    │
+    ▼
+TELA_INTRO
+    │
+    ▼
+TELA_ENTRADA
+    │
+    ▼
+TELA_GAMEPLAY ──► TELA_VITORIA ──► TELA_NOME ──► TELA_RANKING ──► TELA_START
+              └──► TELA_GAME_OVER ─┘
 ```
 
 | Tela | Descrição |
 |---|---|
-| **Start** | Tela inicial com botão PLAY e fade de transição |
+| **Start** | Tela inicial com botão PLAY, botão RANKING e fade de transição |
 | **Intro** | Diálogo de abertura; o personagem caminha até a entrada do cinema |
 | **Entrada** | Fachada do Cinema São Luiz; entrar pelas portas inicia o turno |
-| **Gameplay** | Jogo principal — exploração do cinema com salas, corredores e itens |
-| **Vitória / Game Over** | Telas de fim de jogo (em construção) |
+| **Gameplay** | Jogo principal — exploração do cinema com salas, corredores, itens e inimigos |
+| **Vitória** | Exibida ao concluir o turno; leva ao cadastro de nome |
+| **Game Over** | Exibida ao ser eliminado; leva ao cadastro de nome |
+| **Nome** | Cadastro do nome do jogador para o ranking |
+| **Ranking** | Top 10 melhores tempos salvos em disco |
 
 ---
 
@@ -114,18 +126,28 @@ O inventário tem **3 slots**. Itens podem ser largados no chão (`Q`) e trocado
 ```
 .
 ├── src/
-│   ├── main.c          # Loop principal e máquina de estados de telas
-│   ├── audio.c         # Sistema de música (raylib Music streams)
-│   ├── personagem.c    # Movimentação e renderização do jogador
-│   ├── item.c          # Inventário (lista duplamente encadeada) e itens no chão
-│   ├── gameplay.c      # Lógica do jogo, mapa e transições de sala
-│   ├── entrada.c       # Tela da fachada do cinema
-│   ├── intro.c         # Tela de introdução com diálogo
-│   ├── start_screen.c  # Tela inicial
-│   └── end_screen.c    # Telas de vitória e game over
-├── includes/           # Headers
-├── My_Mirror_Image.ogg # Música do menu
-├── Haunting.ogg        # Música do jogo
+│   ├── main.c           # Loop principal e máquina de estados de telas
+│   ├── audio.c          # Sistema de música (raylib Music streams)
+│   ├── personagem.c     # Movimentação e renderização do jogador
+│   ├── item.c           # Inventário (lista duplamente encadeada) e itens no chão
+│   ├── gameplay.c       # Lógica do jogo, mapa, inimigos e transições de sala
+│   ├── inimigos.c       # Movimentação, colisão e reset dos monstros
+│   ├── grafo.c          # Estrutura de grafo para o mapa de salas
+│   ├── entrada.c        # Tela da fachada do cinema
+│   ├── intro.c          # Tela de introdução com diálogo
+│   ├── start_screen.c   # Tela inicial
+│   ├── end_screen.c     # Telas de vitória e game over
+│   ├── tela_nome.c      # Cadastro de nome para o ranking
+│   ├── tela_ranking.c   # Exibição do ranking
+│   ├── ranking.c        # Leitura e escrita do ranking em disco
+│   └── expediente.c     # Lógica de turno e cronômetro
+├── includes/            # Headers (.h)
+├── assets/
+│   ├── tela_inicial.png # Imagem da tela inicial
+│   ├── tela_intro.png   # Imagem da tela de introdução
+│   ├── tela_frente.png  # Fachada do cinema
+│   ├── My_Mirror_Image.wav  # Música do menu
+│   └── Haunting.wav     # Música do jogo
 └── Makefile
 ```
 
@@ -133,5 +155,5 @@ O inventário tem **3 slots**. Itens podem ser largados no chão (`Q`) e trocado
 
 ## Áudio
 
-- `My_Mirror_Image.ogg` — toca na tela inicial
-- `Haunting.ogg` — toca a partir da introdução até o fim do jogo
+- `assets/My_Mirror_Image.wav` — toca na tela inicial
+- `assets/Haunting.wav` — toca a partir da introdução até o fim do jogo
