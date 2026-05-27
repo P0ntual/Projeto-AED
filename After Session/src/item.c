@@ -1,4 +1,5 @@
 #include "item.h"
+#include "fonte.h"
 #include <stdlib.h>
 
 static bool itemMenor(TipoItem a, TipoItem b) {
@@ -156,11 +157,11 @@ void DrawInventario(Inventario inv) {
         if (cur->item != ITEM_VAZIO) {
             DrawRectangle(x + 12, START_Y + 10, SLOT_SIZE - 24, SLOT_SIZE - 38,
                           CorItem(cur->item));
-            DrawText(NomeItem(cur->item), x + 5, START_Y + SLOT_SIZE - 22, 14, WHITE);
+            DrawTextF(NomeItem(cur->item), x + 5, START_Y + SLOT_SIZE - 22, 14, WHITE);
         }
 
         char numStr[2] = { '1' + cur->indice, '\0' };
-        DrawText(numStr, x + 5, START_Y + 5, 16, ativo ? WHITE : GRAY);
+        DrawTextF(numStr, x + 5, START_Y + 5, 16, ativo ? WHITE : GRAY);
 
         cur = cur->proximo;
     }

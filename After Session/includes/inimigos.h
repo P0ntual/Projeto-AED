@@ -53,6 +53,8 @@ void AtivarAparicaoInimigos(FilaInimigos *fila);
 void DesativarAparicaoInimigos(FilaInimigos *fila);
 bool AparicaoEstaAtiva(const FilaInimigos *fila);
 
+void InitInimigos(void);
+void UnloadInimigos(void);
 void DrawInimigo(Inimigo inimigo);
 void DrawFilaInimigos(const FilaInimigos *fila);
 

@@ -1,6 +1,7 @@
 #include "tela_nome.h"
 #include "ranking.h"
 #include "gameplay.h"
+#include "fonte.h"
 #include "raylib.h"
 #include <string.h>
 
@@ -45,23 +46,23 @@ TelaAtual UpdateTelaNome(void) {
 void DrawTelaNome(void) {
     ClearBackground(BLACK);
 
-    DrawText("VOCE SOBREVIVEU!", 600, 150, 70, GREEN);
-    DrawText(TextFormat("Tempo: %.1f segundos", GameplayTempoDecorrido()),
+    DrawTextF("VOCE SOBREVIVEU!", 600, 150, 70, GREEN);
+    DrawTextF(TextFormat("Tempo: %.1f segundos", GameplayTempoDecorrido()),
              700, 320, 40, WHITE);
 
-    DrawText("Digite seu nome:", 700, 460, 38, WHITE);
+    DrawTextF("Digite seu nome:", 700, 460, 38, WHITE);
 
     Rectangle caixa = { 700.0f, 540.0f, 520.0f, 70.0f };
     DrawRectangleRec(caixa, DARKGRAY);
     DrawRectangleLinesEx(caixa, 3.0f, WHITE);
 
-    DrawText(nomeInput, (int)caixa.x + 15, (int)caixa.y + 18, 40, WHITE);
+    DrawTextF(nomeInput, (int)caixa.x + 15, (int)caixa.y + 18, 40, WHITE);
 
     if (((int)(GetTime() * 2.0)) % 2 == 0) {
-        int textWidth = MeasureText(nomeInput, 40);
+        int textWidth = MeasureTextF(nomeInput, 40);
         DrawRectangle((int)caixa.x + 15 + textWidth + 3,
                       (int)caixa.y + 18, 4, 40, WHITE);
     }
 
-    DrawText("[ENTER] Salvar", 700, 660, 28, LIGHTGRAY);
+    DrawTextF("[ENTER] Salvar", 700, 660, 28, LIGHTGRAY);
 }

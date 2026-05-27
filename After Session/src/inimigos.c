@@ -3,6 +3,16 @@
 #include <string.h>
 #include <math.h>
 
+static Texture2D spriteFantasma;
+
+void InitInimigos(void) {
+    spriteFantasma = LoadTexture("assets/images/fantasma.png");
+}
+
+void UnloadInimigos(void) {
+    UnloadTexture(spriteFantasma);
+}
+
 void InicializarFilaInimigos(FilaInimigos *fila, float intervalo) {
     fila->inicio = 0;
     fila->fim = 0;
@@ -149,10 +159,18 @@ bool ColisaoComInimigos(const FilaInimigos *fila, Vector2 pos, float raio) {
 void DrawInimigo(Inimigo inimigo) {
     if (!inimigo.ativo) return;
 
-    Color cor = (inimigo.tipo == INIMIGO_WITCH) ? PURPLE : WHITE;
+    Rectangle src = (inimigo.tipo == INIMIGO_WITCH)
+        ? (Rectangle){160, 0, 32, 32}   // fantasma rosa
+        : (Rectangle){  0, 0, 32, 32};  // fantasma azul
 
-    DrawCircleV(inimigo.posicao, inimigo.raio, cor);
-    DrawCircleLinesV(inimigo.posicao, inimigo.raio, DARKGRAY);
+    float tamanho = inimigo.raio * 2.5f;
+    Rectangle dest = {
+        inimigo.posicao.x - tamanho * 0.5f,
+        inimigo.posicao.y - tamanho * 0.5f,
+        tamanho, tamanho
+    };
+
+    DrawTexturePro(spriteFantasma, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
 }
 
 void DrawFilaInimigos(const FilaInimigos *fila) {

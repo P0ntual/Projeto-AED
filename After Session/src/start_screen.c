@@ -1,4 +1,5 @@
 #include "start_screen.h"
+#include "fonte.h"
 #include "raylib.h"
 
 
@@ -63,8 +64,8 @@ void DrawStartScreen(void) {
  
     DrawRectangleRec(btnPlay, mouseNoBotaoPlay ? GREEN : DARKGREEN);
     int tamanhoTexto = 40;
-    int larguraPlay = MeasureText("PLAY", tamanhoTexto);
-    DrawText("PLAY",
+    int larguraPlay = MeasureTextF("PLAY", tamanhoTexto);
+    DrawTextF("PLAY",
              (int)(btnPlay.x + btnPlay.width/2 - larguraPlay/2),
              (int)(btnPlay.y + btnPlay.height/2 - tamanhoTexto/2),
              tamanhoTexto,
@@ -72,8 +73,8 @@ void DrawStartScreen(void) {
 
     DrawRectangleRec(btnRanking, mouseNoBotaoRanking ? GOLD : (Color){ 150, 110, 30, 255 });
     int tamanhoRanking = 32;
-    int larguraRanking = MeasureText("RANKING", tamanhoRanking);
-    DrawText("RANKING",
+    int larguraRanking = MeasureTextF("RANKING", tamanhoRanking);
+    DrawTextF("RANKING",
              (int)(btnRanking.x + btnRanking.width/2 - larguraRanking/2),
              (int)(btnRanking.y + btnRanking.height/2 - tamanhoRanking/2),
              tamanhoRanking,

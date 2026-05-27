@@ -3,6 +3,7 @@
 #include "grafo.h"
 #include "expediente.h"
 #include "audio.h"
+#include "fonte.h"
 #include "raylib.h"
 #include <stdbool.h>
 #include <stdlib.h>
@@ -174,7 +175,7 @@ static void EnfileirarInimigosPadrao(void) {
         Inimigo inimigo;
         inimigo.posicao.x  = (float)GetRandomValue(200, 1720);
         inimigo.posicao.y  = (float)GetRandomValue(200, 880);
-        inimigo.raio       = 20.0f;
+        inimigo.raio       = 40.0f;
         inimigo.ativo      = false;
         inimigo.tempoVida  = 0.0f;
         inimigo.tipo       = tipos[i];
@@ -496,20 +497,20 @@ void DrawGameplay(Personagem player) {
             ClearBackground(DARKGRAY);
             DesenharPortasDaSala(salaAtual);
             DrawRectangleRec(bilheteria, (Color){ 120, 80, 40, 255 });
-            DrawText("BILHETERIA", 800, 100, 32, GOLD);
-            DrawText("SAIDA",     910,  950, 30, DARKGRAY);
-            DrawText("COR 1",      20,   90, 20, WHITE);
-            DrawText("COR 2",    1750,   90, 20, WHITE);
-            DrawText("WC F",       12,  535, 20, WHITE);
-            DrawText("WC M",     1826,  535, 20, WHITE);
-            DrawText("ZELADOR",  1730,  940, 18, WHITE);
+            DrawTextF("BILHETERIA", 800, 100, 32, GOLD);
+            DrawTextF("SAIDA",     910,  950, 30, DARKGRAY);
+            DrawTextF("COR 1",      20,   90, 20, WHITE);
+            DrawTextF("COR 2",    1750,   90, 20, WHITE);
+            DrawTextF("WC F",       12,  535, 20, WHITE);
+            DrawTextF("WC M",     1826,  535, 20, WHITE);
+            DrawTextF("ZELADOR",  1730,  940, 18, WHITE);
             break;
         case SALA_CORREDOR_1:
             ClearBackground(BLACK);
             DrawRectangleRec(corredorParedeTopo, DARKGRAY);
             DrawRectangleRec(corredorParedeBaixo, DARKGRAY);
             DesenharPortasDaSala(salaAtual);
-            DrawText("CORREDOR 1", 850, 130, 40, MAROON);
+            DrawTextF("CORREDOR 1", 850, 130, 40, MAROON);
             break;
         case SALA_CINEMA_1:
             ClearBackground(DARKGRAY);
@@ -520,14 +521,14 @@ void DrawGameplay(Personagem player) {
             DrawRectangleRec(poltronasCentEsq, BROWN);
             DrawRectangleRec(poltronasCentDir, BROWN);
             DesenharPortasDaSala(salaAtual);
-            DrawText("SAIDA", 1830, 940, 22, WHITE);
+            DrawTextF("SAIDA", 1830, 940, 22, WHITE);
             break;
         case SALA_CORREDOR_2:
             ClearBackground(BLACK);
             DrawRectangleRec(corredorParedeTopo, DARKGRAY);
             DrawRectangleRec(corredorParedeBaixo, DARKGRAY);
             DesenharPortasDaSala(salaAtual);
-            DrawText("CORREDOR 2", 850, 130, 40, DARKBLUE);
+            DrawTextF("CORREDOR 2", 850, 130, 40, DARKBLUE);
             break;
         case SALA_CINEMA_2:
             ClearBackground(DARKGRAY);
@@ -538,27 +539,27 @@ void DrawGameplay(Personagem player) {
             DrawRectangleRec(poltronasCentEsq, BROWN);
             DrawRectangleRec(poltronasCentDir, BROWN);
             DesenharPortasDaSala(salaAtual);
-            DrawText("SAIDA", 10, 940, 22, WHITE);
+            DrawTextF("SAIDA", 10, 940, 22, WHITE);
             break;
         case SALA_BANHEIRO_FEM:
             ClearBackground((Color){ 220, 180, 220, 255 });
             DrawRectangleRec(cabinesBanheiroFem, (Color){ 180, 140, 180, 255 });
             DrawRectangleRec(piasBanheiroFem, LIGHTGRAY);
             DesenharPortasDaSala(salaAtual);
-            DrawText("BANHEIRO FEMININO", 700, 50, 40, WHITE);
-            DrawText("CABINES", 55, 400, 20, WHITE);
-            DrawText("PIAS", 1745, 160, 20, DARKGRAY);
-            DrawText("SAIDA", 1830, 530, 22, WHITE);
+            DrawTextF("BANHEIRO FEMININO", 700, 50, 40, WHITE);
+            DrawTextF("CABINES", 55, 400, 20, WHITE);
+            DrawTextF("PIAS", 1745, 160, 20, DARKGRAY);
+            DrawTextF("SAIDA", 1830, 530, 22, WHITE);
             break;
         case SALA_BANHEIRO_MASC:
             ClearBackground((Color){ 180, 210, 230, 255 });
             DrawRectangleRec(cabinesBanheiroMasc, (Color){ 140, 170, 200, 255 });
             DrawRectangleRec(piasBanheiroMasc, LIGHTGRAY);
             DesenharPortasDaSala(salaAtual);
-            DrawText("BANHEIRO MASCULINO", 680, 50, 40, WHITE);
-            DrawText("CABINES", 1730, 400, 20, WHITE);
-            DrawText("PIAS", 80, 160, 20, DARKGRAY);
-            DrawText("SAIDA", 10, 530, 22, WHITE);
+            DrawTextF("BANHEIRO MASCULINO", 680, 50, 40, WHITE);
+            DrawTextF("CABINES", 1730, 400, 20, WHITE);
+            DrawTextF("PIAS", 80, 160, 20, DARKGRAY);
+            DrawTextF("SAIDA", 10, 530, 22, WHITE);
             break;
         case SALA_ZELADOR:
             ClearBackground((Color){ 120, 100, 80, 255 });
@@ -566,11 +567,11 @@ void DrawGameplay(Personagem player) {
             DrawRectangleRec(caixasZelador, (Color){ 160, 120, 70, 255 });
             DrawRectangleRec(depositoLixo, (Color){ 60, 80, 60, 255 });
             DesenharPortasDaSala(salaAtual);
-            DrawText("SALA DO ZELADOR", 730, 50, 40, BEIGE);
-            DrawText("ARMARIO", 100, 145, 20, BEIGE);
-            DrawText("CAIXAS", 820, 260, 20, DARKBROWN);
-            DrawText("LIXEIRA", 1530, 560, 28, WHITE);
-            DrawText("SAIDA", 910, 950, 30, DARKGRAY);
+            DrawTextF("SALA DO ZELADOR", 730, 50, 40, BEIGE);
+            DrawTextF("ARMARIO", 100, 145, 20, BEIGE);
+            DrawTextF("CAIXAS", 820, 260, 20, DARKBROWN);
+            DrawTextF("LIXEIRA", 1530, 560, 28, WHITE);
+            DrawTextF("SAIDA", 910, 950, 30, DARKGRAY);
             break;
         default:
             ClearBackground(BLACK);
@@ -583,12 +584,12 @@ void DrawGameplay(Personagem player) {
         Vector2 pos = itensMundo[i].posicao;
         DrawCircle((int)pos.x, (int)pos.y, 14.0f, BLACK);
         DrawCircle((int)pos.x, (int)pos.y, 12.0f, CorItem(itensMundo[i].tipo));
-        DrawText(NomeItem(itensMundo[i].tipo), (int)pos.x - 20, (int)pos.y - 30, 16, WHITE);
+        DrawTextF(NomeItem(itensMundo[i].tipo), (int)pos.x - 20, (int)pos.y - 30, 16, WHITE);
         float dx = player.posicao.x - pos.x;
         float dy = player.posicao.y - pos.y;
         if ((dx * dx + dy * dy) <= (itensMundo[i].raioColeta * itensMundo[i].raioColeta) &&
             !InventarioEstaCheio(&player.inventario)) {
-            DrawText(TextFormat("[E] Pegar %s", NomeItem(itensMundo[i].tipo)),
+            DrawTextF(TextFormat("[E] Pegar %s", NomeItem(itensMundo[i].tipo)),
                      (int)pos.x - 80, (int)pos.y - 50, 18, YELLOW);
         }
     }
@@ -598,14 +599,14 @@ void DrawGameplay(Personagem player) {
         if (curItem->mapaId == (int)salaAtual) {
             DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 14.0f, BLACK);
             DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 12.0f, CorItem(curItem->tipo));
-            DrawText(NomeItem(curItem->tipo), (int)curItem->posicao.x - 20, (int)curItem->posicao.y - 30, 16, WHITE);
+            DrawTextF(NomeItem(curItem->tipo), (int)curItem->posicao.x - 20, (int)curItem->posicao.y - 30, 16, WHITE);
             float dx = player.posicao.x - curItem->posicao.x;
             float dy = player.posicao.y - curItem->posicao.y;
             if ((dx * dx + dy * dy) <= (50.0f * 50.0f)) {
                 const char *prompt = InventarioEstaCheio(&player.inventario)
                     ? TextFormat("[E] Trocar por %s", NomeItem(curItem->tipo))
                     : TextFormat("[E] Pegar %s",      NomeItem(curItem->tipo));
-                DrawText(prompt, (int)curItem->posicao.x - 90, (int)curItem->posicao.y - 50, 18, YELLOW);
+                DrawTextF(prompt, (int)curItem->posicao.x - 90, (int)curItem->posicao.y - 50, 18, YELLOW);
             }
         }
         curItem = curItem->proximo;
@@ -622,18 +623,18 @@ void DrawGameplay(Personagem player) {
                     DrawRectangle((int)pos.x - 8, (int)pos.y - 3, 16, 6, (Color){ 120, 90, 50, 180 });
                 } else {
                     DrawCircle((int)pos.x, (int)pos.y, 8.0f, ORANGE);
-                    DrawText("Lixo", (int)pos.x - 12, (int)pos.y - 22, 13, ORANGE);
+                    DrawTextF("Lixo", (int)pos.x - 12, (int)pos.y - 22, 13, ORANGE);
                 }
                 float dx = player.posicao.x - pos.x;
                 float dy = player.posicao.y - pos.y;
                 if ((dx * dx + dy * dy) <= (80.0f * 80.0f)) {
                     if (curE->tipo == ELEMENTO_SUJEIRA && itemAtivo == ITEM_VASSOURA)
-                        DrawText("[CLIQUE] Limpar Sujeira", (int)pos.x - 90, (int)pos.y - 35, 16, YELLOW);
+                        DrawTextF("[CLIQUE] Limpar Sujeira", (int)pos.x - 90, (int)pos.y - 35, 16, YELLOW);
                     else if (curE->tipo == ELEMENTO_LIXO && itemAtivo == ITEM_SACO_LIXO) {
                         if (lixosNoSaco < MAX_LIXOS_SACO)
-                            DrawText("[CLIQUE] Coletar Lixo", (int)pos.x - 80, (int)pos.y - 35, 16, YELLOW);
+                            DrawTextF("[CLIQUE] Coletar Lixo", (int)pos.x - 80, (int)pos.y - 35, 16, YELLOW);
                         else
-                            DrawText("Saco cheio!", (int)pos.x - 45, (int)pos.y - 35, 16, RED);
+                            DrawTextF("Saco cheio!", (int)pos.x - 45, (int)pos.y - 35, 16, RED);
                     }
                 }
             }
@@ -647,35 +648,35 @@ void DrawGameplay(Personagem player) {
 
     const NoTurno *turno = TurnoAtual(&expediente);
     if (turno != NULL) {
-        DrawText(turno->rotulo, 20, 60, 28, SKYBLUE);
+        DrawTextF(turno->rotulo, 20, 60, 28, SKYBLUE);
     }
 
     if (player.inventario.ativo->item == ITEM_SACO_LIXO)
-        DrawText(TextFormat("Lixo: %d/%d", lixosNoSaco, MAX_LIXOS_SACO),
+        DrawTextF(TextFormat("Lixo: %d/%d", lixosNoSaco, MAX_LIXOS_SACO),
                  20, 20, 22, lixosNoSaco >= MAX_LIXOS_SACO ? RED : WHITE);
 
     if (salaAtual == SALA_ZELADOR &&
         player.inventario.ativo->item == ITEM_SACO_LIXO &&
         CheckCollisionCircleRec(player.posicao, 80.0f, depositoLixo)) {
         if (lixosNoSaco >= MAX_LIXOS_SACO)
-            DrawText("[CLIQUE] Deixar saco aqui", 1410, 415, 22, YELLOW);
+            DrawTextF("[CLIQUE] Deixar saco aqui", 1410, 415, 22, YELLOW);
         else
-            DrawText("Saco precisa estar cheio", 1420, 415, 22, RED);
+            DrawTextF("Saco precisa estar cheio", 1420, 415, 22, RED);
     }
 
     if (portaChavePrompt || portaChaveMsgTimer > 0) {
         DrawRectangle(560, 490, 800, 100, Fade(BLACK, 0.75f));
-        DrawText("[CLIQUE] Usar chave para abrir", 600, 525, 28, YELLOW);
+        DrawTextF("[CLIQUE] Usar chave para abrir", 600, 525, 28, YELLOW);
     }
 
     if (portaBloqueadaMsgTimer > 0) {
         DrawRectangle(560, 490, 800, 100, Fade(BLACK, 0.75f));
-        DrawText("Trancado. Voce precisa de uma chave.", 580, 525, 28, RED);
+        DrawTextF("Trancado. Voce precisa de uma chave.", 580, 525, 28, RED);
     }
 
     if (saidaBloqueadaMsgTimer > 0) {
         DrawRectangle(440, 490, 1040, 100, Fade(BLACK, 0.75f));
-        DrawText("Termine a limpeza antes de sair!", 510, 525, 32, RED);
+        DrawTextF("Termine a limpeza antes de sair!", 510, 525, 32, RED);
     }
 
     int sujeirasRestantes = 0, lixosRestantes = 0;
@@ -687,6 +688,6 @@ void DrawGameplay(Personagem player) {
             cur = cur->proximo;
         } while (cur != elementosChao.cabeca);
     }
-    DrawText(TextFormat("Sujeira: %d  |  Lixo: %d", sujeirasRestantes, lixosRestantes),
+    DrawTextF(TextFormat("Sujeira: %d  |  Lixo: %d", sujeirasRestantes, lixosRestantes),
              20, 95, 22, LIGHTGRAY);
 }

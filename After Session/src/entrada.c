@@ -2,7 +2,7 @@
 #include "raylib.h"
 
 static Texture2D telaEntrada;
-static Rectangle portaEntrada = { 700, 720, 520, 80 };
+static Rectangle portaEntrada = { 500, 800, 920, 200 };
 
 static bool iniciandoTransicao = false;
 static float fadeAlpha = 0.0f;

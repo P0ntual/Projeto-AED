@@ -1,4 +1,5 @@
 #include "intro.h"
+#include "fonte.h"
 #include "raylib.h"
 
 static Texture2D telaIntro;
@@ -40,8 +41,8 @@ TelaAtual UpdateIntro(Personagem *player) {
             lendoDialogo = true;
             posicionouNaPonte = false;
 
-            player->posicao.x = 960.0f;
-            player->posicao.y = 1050.0f;
+            player->posicao.x = 100.0f;
+            player->posicao.y = 900.0f;
 
             return TELA_ENTRADA;
         }
@@ -92,9 +93,9 @@ void DrawIntro(Personagem player) {
         DrawRectangleRec(caixaDialogo, DARKGRAY);
         DrawRectangleLinesEx(caixaDialogo, 5.0f, BLACK); // Borda preta
         
-        DrawText("Voce:", 130, 780, 30, SKYBLUE);
-        DrawText("\"Finalmente consegui um emprego... acho que dessa vez vai!\"", 130, 850, 40, WHITE);
-        DrawText("[PRESSIONE ENTER PARA CONTINUAR]", 1350, 910, 20, LIGHTGRAY);
+        DrawTextF("Voce:", 130, 780, 30, SKYBLUE);
+        DrawTextF("\"Finalmente consegui um emprego... acho que dessa vez vai!\"", 130, 850, 40, WHITE);
+        DrawTextF("[PRESSIONE ENTER PARA CONTINUAR]", 1350, 910, 20, LIGHTGRAY);
     }
 
 

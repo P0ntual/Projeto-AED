@@ -7,13 +7,17 @@
 #include "tela_nome.h"
 #include "tela_ranking.h"
 #include "audio.h"
+#include "inimigos.h"
+#include "fonte.h"
 #include "raylib.h"
 
 int main() {
     InitWindow(1920, 1080, "After Session");
     SetTargetFPS(60);
 
+    InitFonte();
     InicializarAudio();
+    InitInimigos();
     InitStartScreen();
     InitIntro();
     InitEntrada();
@@ -123,14 +127,14 @@ int main() {
 
                 case TELA_VITORIA: {
                     int sz = 50;
-                    int w = MeasureText("PARABENS! TURNO CONCLUIDO", sz);
-                    DrawText("PARABENS! TURNO CONCLUIDO", (1920 - w)/2, 500, sz, GREEN);
+                    int w = MeasureTextF("PARABENS! TURNO CONCLUIDO", sz);
+                    DrawTextF("PARABENS! TURNO CONCLUIDO", (1920 - w)/2, 500, sz, GREEN);
 
                     bool hover = CheckCollisionPointRec(GetMousePosition(), btnVoltarMenu);
                     DrawRectangleRec(btnVoltarMenu, hover ? GREEN : DARKGREEN);
                     int btSz = 30;
-                    int btW  = MeasureText("VOLTAR AO MENU", btSz);
-                    DrawText("VOLTAR AO MENU",
+                    int btW  = MeasureTextF("VOLTAR AO MENU", btSz);
+                    DrawTextF("VOLTAR AO MENU",
                              (int)(btnVoltarMenu.x + btnVoltarMenu.width/2  - btW/2),
                              (int)(btnVoltarMenu.y + btnVoltarMenu.height/2 - btSz/2),
                              btSz, BLACK);
@@ -139,14 +143,14 @@ int main() {
 
                 case TELA_GAME_OVER: {
                     int sz = 60;
-                    int w = MeasureText("GAME OVER", sz);
-                    DrawText("GAME OVER", (1920 - w)/2, 500, sz, RED);
+                    int w = MeasureTextF("GAME OVER", sz);
+                    DrawTextF("GAME OVER", (1920 - w)/2, 500, sz, RED);
 
                     bool hover = CheckCollisionPointRec(GetMousePosition(), btnVoltarMenu);
                     DrawRectangleRec(btnVoltarMenu, hover ? RED : MAROON);
                     int btSz = 30;
-                    int btW  = MeasureText("VOLTAR AO MENU", btSz);
-                    DrawText("VOLTAR AO MENU",
+                    int btW  = MeasureTextF("VOLTAR AO MENU", btSz);
+                    DrawTextF("VOLTAR AO MENU",
                              (int)(btnVoltarMenu.x + btnVoltarMenu.width/2  - btW/2),
                              (int)(btnVoltarMenu.y + btnVoltarMenu.height/2 - btSz/2),
                              btSz, BLACK);
@@ -171,7 +175,9 @@ int main() {
     UnloadStartScreen();
     UnloadIntro();
     UnloadEntrada();
+    UnloadInimigos();
     EncerrarAudio();
+    UnloadFonte();
     CloseWindow();
     return 0;
 }
