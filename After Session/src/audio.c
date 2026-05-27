@@ -20,7 +20,7 @@ static void pararMusicaAtual(void) {
 void TocarMusicaMenu(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("assets/My_Mirror_Image.wav");
+    musicaAtual = LoadMusicStream("assets/audio/My_Mirror_Image.wav");
     SetMusicVolume(musicaAtual, 0.6f);
     SetMusicPitch(musicaAtual, 1.0f);
     musicaAtual.looping = true;
@@ -30,7 +30,7 @@ void TocarMusicaMenu(void) {
 void TocarMusicaIntro(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("assets/Haunting.wav");
+    musicaAtual = LoadMusicStream("assets/audio/Haunting.wav");
     SetMusicVolume(musicaAtual, 0.6f);
     SetMusicPitch(musicaAtual, 1.0f);
     musicaAtual.looping = true;
@@ -40,7 +40,7 @@ void TocarMusicaIntro(void) {
 void TocarMusicaGame(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("assets/Haunting.wav");
+    musicaAtual = LoadMusicStream("assets/audio/Haunting.wav");
     SetMusicVolume(musicaAtual, 0.6f);
     SetMusicPitch(musicaAtual, 1.0f);
     musicaAtual.looping = true;
@@ -50,7 +50,7 @@ void TocarMusicaGame(void) {
 void TocarMusicaPerseguicao(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("assets/Ghost_Appear.wav");
+    musicaAtual = LoadMusicStream("assets/audio/Ghost_Appear.wav");
     SetMusicVolume(musicaAtual, 0.8f);
     SetMusicPitch(musicaAtual, 1.0f);
     musicaAtual.looping = true;
@@ -60,7 +60,7 @@ void TocarMusicaPerseguicao(void) {
 void TocarMusicaVitoria(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("assets/Victory.mp3");
+    musicaAtual = LoadMusicStream("assets/audio/Victory.mp3");
     SetMusicVolume(musicaAtual, 0.7f);
     SetMusicPitch(musicaAtual, 1.0f);
     musicaAtual.looping = true;
@@ -70,7 +70,7 @@ void TocarMusicaVitoria(void) {
 void TocarMusicaDerrota(void) {
     if (!audioIniciado) return;
     pararMusicaAtual();
-    musicaAtual = LoadMusicStream("assets/Defeat.ogg");
+    musicaAtual = LoadMusicStream("assets/audio/Defeat.ogg");
     SetMusicVolume(musicaAtual, 0.7f);
     SetMusicPitch(musicaAtual, 1.0f);
     musicaAtual.looping = true;

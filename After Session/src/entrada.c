@@ -8,7 +8,7 @@ static bool iniciandoTransicao = false;
 static float fadeAlpha = 0.0f;
 
 void InitEntrada(void) {
-    telaEntrada = LoadTexture("assets/tela_frente.png");
+    telaEntrada = LoadTexture("assets/images/tela_frente.png");
 }
 
 void UnloadEntrada(void) {
