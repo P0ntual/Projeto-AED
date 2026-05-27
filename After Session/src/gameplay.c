@@ -673,7 +673,7 @@ void DrawGameplay(Personagem player) {
                         DrawTextureRec(chaoBanheiroTexture, src, (Vector2){(float)tx, (float)ty}, WHITE);
             }
             DrawTexturePro(espelhosTexture, (Rectangle){0,0,1921,1081},
-                (Rectangle){0,0,1920,200}, (Vector2){0,0}, 0.0f, WHITE);
+                (Rectangle){0,0,1920,260}, (Vector2){0,0}, 0.0f, WHITE);
             DrawRectangleRec(cabinesBanheiroFem, (Color){ 180, 140, 180, 255 });
             DrawRectangleRec(piasBanheiroFem, LIGHTGRAY);
             DesenharPortasDaSala(salaAtual);
@@ -691,7 +691,7 @@ void DrawGameplay(Personagem player) {
                         DrawTextureRec(chaoBanheiroTexture, src, (Vector2){(float)tx, (float)ty}, WHITE);
             }
             DrawTexturePro(espelhosTexture, (Rectangle){0,0,1921,1081},
-                (Rectangle){0,0,1920,200}, (Vector2){0,0}, 0.0f, WHITE);
+                (Rectangle){0,0,1920,260}, (Vector2){0,0}, 0.0f, WHITE);
             DrawRectangleRec(cabinesBanheiroMasc, (Color){ 140, 170, 200, 255 });
             DrawRectangleRec(piasBanheiroMasc, LIGHTGRAY);
             DesenharPortasDaSala(salaAtual);
