@@ -4,6 +4,13 @@
 #include "raylib.h"
 #include <stdbool.h>
 
+typedef enum {
+    INIMIGO_STALKER = 0,
+    INIMIGO_WITCH
+} TipoInimigo;
+
+#define WITCH_RAIO_DETECCAO 250.0f
+
 typedef struct {
     Vector2 posicao;
     float velocidade;

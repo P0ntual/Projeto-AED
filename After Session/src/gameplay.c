@@ -145,15 +145,26 @@ float GameplayTempoDecorrido(void) {
 }
 
 static void EnfileirarInimigosPadrao(void) {
+    int tipos[5] = {
+        INIMIGO_STALKER, INIMIGO_STALKER, INIMIGO_STALKER,
+        INIMIGO_WITCH,   INIMIGO_WITCH
+    };
+
+    for (int i = 4; i > 0; i--) {
+        int j = GetRandomValue(0, i);
+        int tmp = tipos[i]; tipos[i] = tipos[j]; tipos[j] = tmp;
+    }
+
     for (int i = 0; i < 5; i++) {
         Inimigo inimigo;
         inimigo.posicao.x  = (float)GetRandomValue(200, 1720);
         inimigo.posicao.y  = (float)GetRandomValue(200, 880);
-        inimigo.velocidade = 3.25f;
         inimigo.raio       = 20.0f;
-        inimigo.tipo       = i % 3;
         inimigo.ativo      = false;
         inimigo.tempoVida  = 0.0f;
+        inimigo.tipo       = tipos[i];
+        inimigo.velocidade = (tipos[i] == INIMIGO_STALKER) ? 3.25f : 5.2f;
+
         EnfileirarInimigo(&filaInimigos, inimigo);
     }
 }
@@ -271,6 +282,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
 
     if (!aparicoesAtivadas &&
         expediente.atual != NULL && expediente.atual->hora == 0) {
+        filaInimigos.tempoProximaAparicao = (float)GetRandomValue(10, 30) / 10.0f;
         AtivarAparicaoInimigos(&filaInimigos);
         aparicoesAtivadas = true;
     }
@@ -414,6 +426,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
                 if (itensMundo[i].tipo == ITEM_SACO_LIXO) lixosNoSaco = 0;
 
                 if (!aparicoesAtivadas && itensMundo[i].tipo == ITEM_CHAVE) {
+                    filaInimigos.tempoProximaAparicao = (float)GetRandomValue(10, 30) / 10.0f;
                     AtivarAparicaoInimigos(&filaInimigos);
                     aparicoesAtivadas = true;
                 }
