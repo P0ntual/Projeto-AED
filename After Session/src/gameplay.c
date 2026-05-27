@@ -2,6 +2,7 @@
 #include "item.h"
 #include "grafo.h"
 #include "expediente.h"
+#include "audio.h"
 #include "raylib.h"
 #include <stdbool.h>
 #include <stdlib.h>
@@ -19,6 +20,8 @@ static bool expedienteInicializado = false;
 
 static float tempoDecorrido = 0.0f;
 static bool tempoComecou = false;
+
+static bool perseguicaoAtiva = false;
 
 static Rectangle telaBloco        = {  710.0f,  20.0f, 500.0f, 200.0f };
 static Rectangle poltronasEsq     = {  100.0f, 300.0f, 360.0f, 480.0f };
@@ -142,15 +145,26 @@ float GameplayTempoDecorrido(void) {
 }
 
 static void EnfileirarInimigosPadrao(void) {
+    int tipos[5] = {
+        INIMIGO_STALKER, INIMIGO_STALKER, INIMIGO_STALKER,
+        INIMIGO_WITCH,   INIMIGO_WITCH
+    };
+
+    for (int i = 4; i > 0; i--) {
+        int j = GetRandomValue(0, i);
+        int tmp = tipos[i]; tipos[i] = tipos[j]; tipos[j] = tmp;
+    }
+
     for (int i = 0; i < 5; i++) {
         Inimigo inimigo;
         inimigo.posicao.x  = (float)GetRandomValue(200, 1720);
         inimigo.posicao.y  = (float)GetRandomValue(200, 880);
-        inimigo.velocidade = 3.25f;
         inimigo.raio       = 20.0f;
-        inimigo.tipo       = i % 3;
         inimigo.ativo      = false;
         inimigo.tempoVida  = 0.0f;
+        inimigo.tipo       = tipos[i];
+        inimigo.velocidade = (tipos[i] == INIMIGO_STALKER) ? 3.25f : 5.2f;
+
         EnfileirarInimigo(&filaInimigos, inimigo);
     }
 }
@@ -192,6 +206,7 @@ void ResetarGameplay(Personagem *player) {
 
     salaAtual              = SALA_SAGUAO;
     aparicoesAtivadas      = false;
+    perseguicaoAtiva       = false;
     tempoComecou           = false;
     tempoDecorrido         = 0.0f;
     lixosNoSaco            = 0;
@@ -246,6 +261,16 @@ TelaAtual UpdateGameplay(Personagem *player) {
     AtualizarFilaInimigos(&filaInimigos, player->posicao);
     AtualizarMovimentoInimigos(&filaInimigos, player->posicao);
 
+    bool algumAtivo = false;
+    for (int i = 0; i < FILA_INIMIGOS_MAX; i++) {
+        if (filaInimigos.inimigos[i].ativo) { algumAtivo = true; break; }
+    }
+    if (algumAtivo != perseguicaoAtiva) {
+        perseguicaoAtiva = algumAtivo;
+        if (perseguicaoAtiva) TocarMusicaPerseguicao();
+        else                  TocarMusicaGame();
+    }
+
     if (ColisaoComInimigos(&filaInimigos, player->posicao, 20.0f)) {
         return TELA_GAME_OVER;
     }
@@ -257,6 +282,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
 
     if (!aparicoesAtivadas &&
         expediente.atual != NULL && expediente.atual->hora == 0) {
+        filaInimigos.tempoProximaAparicao = (float)GetRandomValue(10, 30) / 10.0f;
         AtivarAparicaoInimigos(&filaInimigos);
         aparicoesAtivadas = true;
     }
@@ -400,6 +426,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
                 if (itensMundo[i].tipo == ITEM_SACO_LIXO) lixosNoSaco = 0;
 
                 if (!aparicoesAtivadas && itensMundo[i].tipo == ITEM_CHAVE) {
+                    filaInimigos.tempoProximaAparicao = (float)GetRandomValue(10, 30) / 10.0f;
                     AtivarAparicaoInimigos(&filaInimigos);
                     aparicoesAtivadas = true;
                 }

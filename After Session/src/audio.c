@@ -37,6 +37,46 @@ void TocarMusicaIntro(void) {
     PlayMusicStream(musicaAtual);
 }
 
+void TocarMusicaGame(void) {
+    if (!audioIniciado) return;
+    pararMusicaAtual();
+    musicaAtual = LoadMusicStream("Haunting.wav");
+    SetMusicVolume(musicaAtual, 0.6f);
+    SetMusicPitch(musicaAtual, 1.0f);
+    musicaAtual.looping = true;
+    PlayMusicStream(musicaAtual);
+}
+
+void TocarMusicaPerseguicao(void) {
+    if (!audioIniciado) return;
+    pararMusicaAtual();
+    musicaAtual = LoadMusicStream("Ghost_Appear.wav");
+    SetMusicVolume(musicaAtual, 0.8f);
+    SetMusicPitch(musicaAtual, 1.0f);
+    musicaAtual.looping = true;
+    PlayMusicStream(musicaAtual);
+}
+
+void TocarMusicaVitoria(void) {
+    if (!audioIniciado) return;
+    pararMusicaAtual();
+    musicaAtual = LoadMusicStream("Victory.mp3");
+    SetMusicVolume(musicaAtual, 0.7f);
+    SetMusicPitch(musicaAtual, 1.0f);
+    musicaAtual.looping = true;
+    PlayMusicStream(musicaAtual);
+}
+
+void TocarMusicaDerrota(void) {
+    if (!audioIniciado) return;
+    pararMusicaAtual();
+    musicaAtual = LoadMusicStream("Defeat.ogg");
+    SetMusicVolume(musicaAtual, 0.7f);
+    SetMusicPitch(musicaAtual, 1.0f);
+    musicaAtual.looping = true;
+    PlayMusicStream(musicaAtual);
+}
+
 void AtualizarAudio(void) {
     if (!audioIniciado) return;
     UpdateMusicStream(musicaAtual);

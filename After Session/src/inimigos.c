@@ -54,8 +54,8 @@ int TamanhoFila(const FilaInimigos *fila) {
     return fila->tamanho;
 }
 
-void AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos) {
-    if (!fila->permiteAparicao) return;
+bool AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos) {
+    if (!fila->permiteAparicao) return false;
 
     fila->tempoProximaAparicao -= GetFrameTime();
 
@@ -80,7 +80,9 @@ void AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos) {
             }
         }
         fila->tempoProximaAparicao = fila->intervaloAparicao;
+        return true;
     }
+    return false;
 }
 
 Inimigo *ObterProximoInimigo(FilaInimigos *fila) {
@@ -115,7 +117,14 @@ void AtualizarMovimentoInimigos(FilaInimigos *fila, Vector2 alvo) {
 
         float dx = alvo.x - inimigo->posicao.x;
         float dy = alvo.y - inimigo->posicao.y;
-        float dist = sqrtf(dx*dx + dy*dy);
+        float distSqr = dx*dx + dy*dy;
+
+        if (inimigo->tipo == INIMIGO_WITCH &&
+            distSqr > WITCH_RAIO_DETECCAO * WITCH_RAIO_DETECCAO) {
+            continue;
+        }
+
+        float dist = sqrtf(distSqr);
         if (dist > 0.001f) {
             inimigo->posicao.x += (dx / dist) * inimigo->velocidade;
             inimigo->posicao.y += (dy / dist) * inimigo->velocidade;
@@ -139,13 +148,7 @@ bool ColisaoComInimigos(const FilaInimigos *fila, Vector2 pos, float raio) {
 void DrawInimigo(Inimigo inimigo) {
     if (!inimigo.ativo) return;
 
-    Color cor;
-    switch (inimigo.tipo) {
-        case 0: cor = WHITE; break;
-        case 1: cor = RED; break;
-        case 2: cor = BLUE; break;
-        default: cor = PURPLE; break;
-    }
+    Color cor = (inimigo.tipo == INIMIGO_WITCH) ? PURPLE : WHITE;
 
     DrawCircleV(inimigo.posicao, inimigo.raio, cor);
     DrawCircleLinesV(inimigo.posicao, inimigo.raio, DARKGRAY);
