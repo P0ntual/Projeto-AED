@@ -95,6 +95,7 @@ typedef struct NodoElemento {
     TipoElemento tipo;
     Vector2 posicao;
     int mapaId;
+    int variante;
     struct NodoElemento *proximo;
 } NodoElemento;
 

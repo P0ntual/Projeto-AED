@@ -23,6 +23,31 @@ static bool bilheteriaCarregada = false;
 static Texture2D sacoLixoTexture;
 static bool sacoLixoCarregado = false;
 
+static Texture2D sujeiraTexture;
+static bool sujeiraCarregada = false;
+
+static Texture2D armarioZeladorTexture;
+static bool armarioZeladorCarregado = false;
+
+static Texture2D lixeiroTexture;
+static bool lixeiroCarregado = false;
+
+static Texture2D caixaTexture;
+static bool caixaCarregada = false;
+
+static Texture2D chaveTexture;
+static bool chaveCarregada = false;
+
+static Texture2D cartazesTexture;
+static bool cartazesCarregado = false;
+
+static Texture2D portaTopdownTexture;
+static bool portasCarregadas = false;
+
+static Texture2D pipocaTexture;
+static Texture2D pepiBlackTexture;
+static bool sujeirasCarregadas = false;
+
 static GrafoMapa grafo;
 static bool grafoInicializado = false;
 
@@ -50,11 +75,11 @@ static Rectangle piasBanheiroFem     = { 1700.0f,  80.0f, 180.0f, 200.0f };
 static Rectangle cabinesBanheiroMasc = { 1720.0f,  80.0f, 160.0f, 700.0f };
 static Rectangle piasBanheiroMasc    = {   40.0f,  80.0f, 180.0f, 200.0f };
 
-static Rectangle armarioZelador = {  40.0f,  40.0f, 350.0f, 250.0f };
-static Rectangle caixasZelador  = { 600.0f, 150.0f, 700.0f, 250.0f };
-static Rectangle depositoLixo   = { 1500.0f, 450.0f, 200.0f, 250.0f };
+static Rectangle armarioZelador = {  40.0f,  40.0f, 220.0f, 250.0f };
+static Rectangle caixasZelador  = { 580.0f, 180.0f, 280.0f, 176.0f };
+static Rectangle depositoLixo   = {  280.0f,  80.0f, 120.0f, 140.0f };
 
-static Rectangle bilheteria = { 860.0f, 30.0f, 200.0f, 230.0f };
+static Rectangle bilheteria = { 860.0f, 150.0f, 200.0f, 230.0f };
 
 static Rectangle corredorParedeTopo  = { 0.0f,   0.0f, 1920.0f, 340.0f };
 static Rectangle corredorParedeBaixo = { 0.0f, 740.0f, 1920.0f, 340.0f };
@@ -70,7 +95,7 @@ typedef struct {
 } ItemMundo;
 
 static ItemMundo itensMundo[MAX_ITENS_MUNDO] = {
-    { ITEM_CHAVE,              {  960.0f, 240.0f }, 50.0f, false, SALA_SAGUAO  },
+    { ITEM_CHAVE,              {  400.0f, 500.0f }, 50.0f, false, SALA_SAGUAO  },
     { ITEM_VASSOURA,           {  450.0f,  80.0f }, 50.0f, false, SALA_ZELADOR },
     { ITEM_SACO_LIXO,          { 1700.0f, 250.0f }, 50.0f, false, SALA_ZELADOR },
     { ITEM_SACO_LIXO,          { 1800.0f, 800.0f }, 50.0f, false, SALA_ZELADOR },
@@ -272,7 +297,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
     }
 
     if (!chaoSalaCarregado) {
-        chaoSalaTexture = LoadTexture("assets/images/chao sala principal.png");
+        chaoSalaTexture = LoadTexture("assets/images/sala entrada/sala.png");
         chaoSalaCarregado = true;
     }
 
@@ -285,6 +310,49 @@ TelaAtual UpdateGameplay(Personagem *player) {
         sacoLixoTexture = LoadTexture("assets/images/itens/saco de lixo.png");
         sacoLixoCarregado = true;
     }
+
+    if (!sujeiraCarregada) {
+        sujeiraTexture = LoadTexture("assets/images/itens/sujeira.png");
+        sujeiraCarregada = true;
+    }
+
+    if (!armarioZeladorCarregado) {
+        armarioZeladorTexture = LoadTexture("assets/images/sala zelador/armario zelador.png");
+        armarioZeladorCarregado = true;
+    }
+
+    if (!lixeiroCarregado) {
+        lixeiroTexture = LoadTexture("assets/images/sala zelador/lixeiro.png");
+        lixeiroCarregado = true;
+    }
+
+    if (!caixaCarregada) {
+        caixaTexture = LoadTexture("assets/images/sala zelador/caixa.png");
+        caixaCarregada = true;
+    }
+
+    if (!sujeirasCarregadas) {
+        pipocaTexture    = LoadTexture("assets/images/itens/pipoca.png");
+        pepiBlackTexture = LoadTexture("assets/images/itens/pepi black.png");
+        sujeirasCarregadas = true;
+    }
+
+    if (!chaveCarregada) {
+        chaveTexture = LoadTexture("assets/images/itens/chaves wc.png");
+        chaveCarregada = true;
+    }
+
+    if (!cartazesCarregado) {
+        cartazesTexture = LoadTexture("assets/images/corredor/cartazes corredor.png");
+        cartazesCarregado = true;
+    }
+
+    if (!portasCarregadas) {
+        portaTopdownTexture = LoadTexture("assets/images/sala entrada/porta topdown.png");
+        portasCarregadas = true;
+    }
+
+
 
     if (!grafoInicializado) {
         InicializarGrafo(&grafo);
@@ -513,20 +581,8 @@ TelaAtual UpdateGameplay(Personagem *player) {
 static void DesenharPortasDaSala(IdSala sala) {
     Aresta *cur = grafo.nos[sala].adjacencias;
     while (cur) {
-        Color cor;
-        switch (cur->destino) {
-            case SALA_CORREDOR_1:    cor = MAROON;   break;
-            case SALA_CORREDOR_2:    cor = DARKBLUE; break;
-            case SALA_BANHEIRO_FEM:  cor = PINK;     break;
-            case SALA_BANHEIRO_MASC: cor = SKYBLUE;  break;
-            case SALA_ZELADOR:       cor = BROWN;    break;
-            case SALA_CINEMA_1:      cor = MAROON;   break;
-            case SALA_CINEMA_2:      cor = DARKBLUE; break;
-            case SALA_SAIDA:         cor = GOLD;     break;
-            case SALA_SAGUAO:        cor = GRAY;     break;
-            default:                 cor = LIGHTGRAY;break;
-        }
-        DrawRectangleRec(cur->gatilho, cor);
+        DrawTexturePro(portaTopdownTexture, (Rectangle){305,190,51,101},
+            cur->gatilho, (Vector2){0,0}, 0.0f, WHITE);
         cur = cur->proxima;
     }
 }
@@ -535,18 +591,10 @@ void DrawGameplay(Personagem player) {
     switch (salaAtual) {
         case SALA_SAGUAO:
             ClearBackground(BLACK);
-            {
-                int tw = 138, th = 48;
-                for (int row = 0; row * th + 200 < 1080; row++) {
-                    for (int col = 0; col * tw < 1920; col++) {
-                        Rectangle src  = ((row + col) % 2 == 0)
-                            ? (Rectangle){195, 240,  138, 48}
-                            : (Rectangle){333, 240, -138, 48};
-                        Rectangle dest = {(float)(col * tw), (float)(row * th + 200), (float)tw, (float)th};
-                        DrawTexturePro(chaoSalaTexture, src, dest, (Vector2){0,0}, 0.0f, WHITE);
-                    }
-                }
-            }
+            DrawTexturePro(chaoSalaTexture,
+                (Rectangle){0, 0, 1921, 1081},
+                (Rectangle){0, 0, 1920, 1080},
+                (Vector2){0, 0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
             DrawTexturePro(bilheteriaTexture,
                 (Rectangle){294, 279, 172, 197},
@@ -568,6 +616,8 @@ void DrawGameplay(Personagem player) {
             }
             DrawRectangleRec(corredorParedeTopo, DARKGRAY);
             DrawRectangleRec(corredorParedeBaixo, DARKGRAY);
+            DrawTexturePro(cartazesTexture, (Rectangle){0,0,1921,1081},
+                (Rectangle){160,20,1600,315}, (Vector2){0,0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
             DrawTextF("CORREDOR 1", 850, 130, 40, MAROON);
             break;
@@ -592,6 +642,8 @@ void DrawGameplay(Personagem player) {
             }
             DrawRectangleRec(corredorParedeTopo, DARKGRAY);
             DrawRectangleRec(corredorParedeBaixo, DARKGRAY);
+            DrawTexturePro(cartazesTexture, (Rectangle){0,0,1921,1081},
+                (Rectangle){160,20,1600,315}, (Vector2){0,0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
             DrawTextF("CORREDOR 2", 850, 130, 40, DARKBLUE);
             break;
@@ -640,14 +692,14 @@ void DrawGameplay(Personagem player) {
             break;
         case SALA_ZELADOR:
             ClearBackground((Color){ 120, 100, 80, 255 });
-            DrawRectangleRec(armarioZelador, (Color){ 80, 60, 40, 255 });
-            DrawRectangleRec(caixasZelador, (Color){ 160, 120, 70, 255 });
-            DrawRectangleRec(depositoLixo, (Color){ 60, 80, 60, 255 });
+            DrawTexturePro(armarioZeladorTexture, (Rectangle){3,0,94,95},
+                armarioZelador, (Vector2){0,0}, 0.0f, WHITE);
+            DrawTexturePro(caixaTexture, (Rectangle){9,39,97,61},
+                caixasZelador, (Vector2){0,0}, 0.0f, WHITE);
+            DrawTexturePro(lixeiroTexture, (Rectangle){25,14,26,28},
+                depositoLixo, (Vector2){0,0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
             DrawTextF("SALA DO ZELADOR", 730, 50, 40, BEIGE);
-            DrawTextF("ARMARIO", 100, 145, 20, BEIGE);
-            DrawTextF("CAIXAS", 820, 260, 20, DARKBROWN);
-            DrawTextF("LIXEIRA", 1530, 560, 28, WHITE);
             DrawTextF("SAIDA", 910, 950, 30, DARKGRAY);
             break;
         default:
@@ -656,12 +708,16 @@ void DrawGameplay(Personagem player) {
             break;
     }
 
+    #define IS_CHAVE(t) ((t)==ITEM_CHAVE||(t)==ITEM_CHAVE_SALA1||(t)==ITEM_CHAVE_SALA2||(t)==ITEM_CHAVE_BANHEIRO_FEM||(t)==ITEM_CHAVE_BANHEIRO_MASC)
     for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
         if (itensMundo[i].coletado || itensMundo[i].mapa != salaAtual) continue;
         Vector2 pos = itensMundo[i].posicao;
         if (itensMundo[i].tipo == ITEM_SACO_LIXO) {
             DrawTexturePro(sacoLixoTexture, (Rectangle){0,0,80,48},
                 (Rectangle){pos.x - 40, pos.y - 24, 80, 48}, (Vector2){0,0}, 0.0f, WHITE);
+        } else if (IS_CHAVE(itensMundo[i].tipo)) {
+            DrawTexturePro(chaveTexture, (Rectangle){757,512,112,234},
+                (Rectangle){pos.x - 16, pos.y - 34, 32, 68}, (Vector2){0,0}, 0.0f, WHITE);
         } else {
             DrawCircle((int)pos.x, (int)pos.y, 14.0f, BLACK);
             DrawCircle((int)pos.x, (int)pos.y, 12.0f, CorItem(itensMundo[i].tipo));
@@ -682,6 +738,10 @@ void DrawGameplay(Personagem player) {
             if (curItem->tipo == ITEM_SACO_LIXO) {
                 DrawTexturePro(sacoLixoTexture, (Rectangle){0,0,80,48},
                     (Rectangle){curItem->posicao.x - 40, curItem->posicao.y - 24, 80, 48},
+                    (Vector2){0,0}, 0.0f, WHITE);
+            } else if (IS_CHAVE(curItem->tipo)) {
+                DrawTexturePro(chaveTexture, (Rectangle){757,512,112,234},
+                    (Rectangle){curItem->posicao.x - 28, curItem->posicao.y - 58, 56, 116},
                     (Vector2){0,0}, 0.0f, WHITE);
             } else {
                 DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 14.0f, BLACK);
@@ -707,11 +767,12 @@ void DrawGameplay(Personagem player) {
             if (curE->mapaId == (int)salaAtual) {
                 Vector2 pos = curE->posicao;
                 if (curE->tipo == ELEMENTO_SUJEIRA) {
-                    DrawCircle((int)pos.x, (int)pos.y, 10.0f, (Color){ 150, 120, 80, 200 });
-                    DrawRectangle((int)pos.x - 8, (int)pos.y - 3, 16, 6, (Color){ 120, 90, 50, 180 });
+                    Texture2D tex = (curE->variante == 0) ? pipocaTexture : pepiBlackTexture;
+                    DrawTexturePro(tex, (Rectangle){0,0,80,48},
+                        (Rectangle){pos.x - 70, pos.y - 42, 140, 84}, (Vector2){0,0}, 0.0f, WHITE);
                 } else {
-                    DrawCircle((int)pos.x, (int)pos.y, 8.0f, ORANGE);
-                    DrawTextF("Lixo", (int)pos.x - 12, (int)pos.y - 22, 13, ORANGE);
+                    DrawTexturePro(sujeiraTexture, (Rectangle){0,0,80,48},
+                        (Rectangle){pos.x - 70, pos.y - 42, 140, 84}, (Vector2){0,0}, 0.0f, WHITE);
                 }
                 float dx = player.posicao.x - pos.x;
                 float dy = player.posicao.y - pos.y;

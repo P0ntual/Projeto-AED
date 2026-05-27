@@ -231,9 +231,10 @@ void InicializarListaElementos(ListaElementos *lista) {
 void InserirElemento(ListaElementos *lista, TipoElemento tipo, Vector2 posicao, int mapaId) {
     NodoElemento *novo = (NodoElemento *)malloc(sizeof(NodoElemento));
     if (novo == NULL) return;
-    novo->tipo    = tipo;
-    novo->posicao = posicao;
-    novo->mapaId  = mapaId;
+    novo->tipo     = tipo;
+    novo->posicao  = posicao;
+    novo->mapaId   = mapaId;
+    novo->variante = GetRandomValue(0, 1);
     if (lista->cabeca == NULL) {
         novo->proximo = novo;
         lista->cabeca = novo;
