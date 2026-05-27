@@ -36,13 +36,14 @@ static Rectangle piasBanheiroMasc    = {   40.0f,  80.0f, 180.0f, 200.0f };
 
 static Rectangle armarioZelador = {  40.0f,  40.0f, 350.0f, 250.0f };
 static Rectangle caixasZelador  = { 600.0f, 150.0f, 700.0f, 250.0f };
+static Rectangle depositoLixo   = { 1500.0f, 450.0f, 200.0f, 250.0f };
 
 static Rectangle bilheteria = { 660.0f, 30.0f, 600.0f, 180.0f };
 
 static Rectangle corredorParedeTopo  = { 0.0f,   0.0f, 1920.0f, 340.0f };
 static Rectangle corredorParedeBaixo = { 0.0f, 740.0f, 1920.0f, 340.0f };
 
-#define MAX_ITENS_MUNDO 10
+#define MAX_ITENS_MUNDO 8
 
 typedef struct {
     TipoItem tipo;
@@ -55,14 +56,12 @@ typedef struct {
 static ItemMundo itensMundo[MAX_ITENS_MUNDO] = {
     { ITEM_CHAVE,              {  960.0f, 240.0f }, 50.0f, false, SALA_SAGUAO  },
     { ITEM_VASSOURA,           {  450.0f,  80.0f }, 50.0f, false, SALA_ZELADOR },
-    { ITEM_LANTERNA,           {  530.0f,  80.0f }, 50.0f, false, SALA_ZELADOR },
-    { ITEM_PILHA,              { 1500.0f, 100.0f }, 50.0f, false, SALA_ZELADOR },
     { ITEM_SACO_LIXO,          { 1700.0f, 250.0f }, 50.0f, false, SALA_ZELADOR },
-    { ITEM_SACO_LIXO,          { 1700.0f, 600.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_SACO_LIXO,          { 1800.0f, 800.0f }, 50.0f, false, SALA_ZELADOR },
     { ITEM_CHAVE_BANHEIRO_FEM, {  250.0f, 500.0f }, 50.0f, false, SALA_ZELADOR },
     { ITEM_CHAVE_BANHEIRO_MASC,{  500.0f, 500.0f }, 50.0f, false, SALA_ZELADOR },
-    { ITEM_CHAVE_SALA1,        {  500.0f, 700.0f }, 50.0f, false, SALA_ZELADOR },
-    { ITEM_CHAVE_SALA2,        { 1500.0f, 700.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_CHAVE_SALA1,        {  500.0f, 800.0f }, 50.0f, false, SALA_ZELADOR },
+    { ITEM_CHAVE_SALA2,        { 1400.0f, 800.0f }, 50.0f, false, SALA_ZELADOR },
 };
 
 static ListaItensChao itensChao;
@@ -328,7 +327,8 @@ TelaAtual UpdateGameplay(Personagem *player) {
     }
     if (salaAtual == SALA_ZELADOR) {
         if (CheckCollisionCircleRec(player->posicao, raio, armarioZelador) ||
-            CheckCollisionCircleRec(player->posicao, raio, caixasZelador))
+            CheckCollisionCircleRec(player->posicao, raio, caixasZelador)   ||
+            CheckCollisionCircleRec(player->posicao, raio, depositoLixo))
             player->posicao = prevPosicao;
     }
     if (salaAtual == SALA_SAGUAO) {
@@ -404,7 +404,12 @@ TelaAtual UpdateGameplay(Personagem *player) {
 
     if (clicouEsquerdo && player->inventario.ativo->item != ITEM_VAZIO) {
         TipoItem ativo = player->inventario.ativo->item;
-        if (ativo == ITEM_VASSOURA) {
+        if (ativo == ITEM_SACO_LIXO && salaAtual == SALA_ZELADOR &&
+            lixosNoSaco >= MAX_LIXOS_SACO &&
+            CheckCollisionCircleRec(player->posicao, 80.0f, depositoLixo)) {
+            RemoverItemAtivo(&player->inventario);
+            lixosNoSaco = 0;
+        } else if (ativo == ITEM_VASSOURA) {
             RemoverElementoProximo(&elementosChao, ELEMENTO_SUJEIRA, player->posicao, (int)salaAtual, 80.0f);
         } else if (ativo == ITEM_SACO_LIXO && lixosNoSaco < MAX_LIXOS_SACO) {
             if (RemoverElementoProximo(&elementosChao, ELEMENTO_LIXO, player->posicao, (int)salaAtual, 80.0f))
@@ -559,10 +564,12 @@ void DrawGameplay(Personagem player) {
             ClearBackground((Color){ 120, 100, 80, 255 });
             DrawRectangleRec(armarioZelador, (Color){ 80, 60, 40, 255 });
             DrawRectangleRec(caixasZelador, (Color){ 160, 120, 70, 255 });
+            DrawRectangleRec(depositoLixo, (Color){ 60, 80, 60, 255 });
             DesenharPortasDaSala(salaAtual);
             DrawText("SALA DO ZELADOR", 730, 50, 40, BEIGE);
             DrawText("ARMARIO", 100, 145, 20, BEIGE);
             DrawText("CAIXAS", 820, 260, 20, DARKBROWN);
+            DrawText("LIXEIRA", 1530, 560, 28, WHITE);
             DrawText("SAIDA", 910, 950, 30, DARKGRAY);
             break;
         default:
@@ -646,6 +653,15 @@ void DrawGameplay(Personagem player) {
     if (player.inventario.ativo->item == ITEM_SACO_LIXO)
         DrawText(TextFormat("Lixo: %d/%d", lixosNoSaco, MAX_LIXOS_SACO),
                  20, 20, 22, lixosNoSaco >= MAX_LIXOS_SACO ? RED : WHITE);
+
+    if (salaAtual == SALA_ZELADOR &&
+        player.inventario.ativo->item == ITEM_SACO_LIXO &&
+        CheckCollisionCircleRec(player.posicao, 80.0f, depositoLixo)) {
+        if (lixosNoSaco >= MAX_LIXOS_SACO)
+            DrawText("[CLIQUE] Deixar saco aqui", 1410, 415, 22, YELLOW);
+        else
+            DrawText("Saco precisa estar cheio", 1420, 415, 22, RED);
+    }
 
     if (portaChavePrompt || portaChaveMsgTimer > 0) {
         DrawRectangle(560, 490, 800, 100, Fade(BLACK, 0.75f));

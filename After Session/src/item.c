@@ -115,9 +115,7 @@ const char *NomeItem(TipoItem tipo) {
         case ITEM_CHAVE_BANHEIRO_FEM:  return "Ch.WCF";
         case ITEM_CHAVE_BANHEIRO_MASC: return "Ch.WCM";
         case ITEM_VASSOURA:            return "Vassoura";
-        case ITEM_LANTERNA:            return "Lanterna";
         case ITEM_SACO_LIXO:           return "Saco";
-        case ITEM_PILHA:               return "Pilha";
         default:                       return "";
     }
 }
@@ -130,9 +128,7 @@ Color CorItem(TipoItem tipo) {
         case ITEM_CHAVE_BANHEIRO_FEM:  return GOLD;
         case ITEM_CHAVE_BANHEIRO_MASC: return GOLD;
         case ITEM_VASSOURA:            return BROWN;
-        case ITEM_LANTERNA:            return YELLOW;
         case ITEM_SACO_LIXO:           return DARKGREEN;
-        case ITEM_PILHA:               return LIME;
         default:                       return BLANK;
     }
 }
