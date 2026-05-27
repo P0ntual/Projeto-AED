@@ -4,6 +4,7 @@
 #include "expediente.h"
 #include "raylib.h"
 #include <stdbool.h>
+#include <stdlib.h>
 
 static GrafoMapa grafo;
 static bool grafoInicializado = false;
@@ -68,6 +69,7 @@ static int  lixosNoSaco = 0;
 #define MAX_LIXOS_SACO 5
 
 static int portaBloqueadaMsgTimer = 0;
+static int saidaBloqueadaMsgTimer = 0;
 
 static int  portaChaveMsgTimer = 0;
 static bool portaChavePrompt   = false;
@@ -151,6 +153,54 @@ static void EnfileirarInimigosPadrao(void) {
         inimigo.tempoVida  = 0.0f;
         EnfileirarInimigo(&filaInimigos, inimigo);
     }
+}
+
+void ResetarGameplay(Personagem *player) {
+    if (grafoInicializado) {
+        LiberarGrafo(&grafo);
+        grafoInicializado = false;
+    }
+    if (expedienteInicializado) {
+        LiberarExpediente(&expediente);
+        expedienteInicializado = false;
+    }
+    if (elementosChao.cabeca != NULL) {
+        NodoElemento *cabeca = elementosChao.cabeca;
+        NodoElemento *cur = cabeca;
+        do {
+            NodoElemento *next = cur->proximo;
+            free(cur);
+            cur = next;
+        } while (cur != cabeca);
+        elementosChao.cabeca = NULL;
+        elementosChao.tamanho = 0;
+    }
+    elementosInicializados = false;
+
+    while (itensChao.cabeca != NULL) {
+        ItemChao *tmp = itensChao.cabeca;
+        itensChao.cabeca = tmp->proximo;
+        free(tmp);
+    }
+    itensChao.tamanho = 0;
+
+    filaInicializada = false;
+
+    for (int i = 0; i < MAX_ITENS_MUNDO; i++) {
+        itensMundo[i].coletado = false;
+    }
+
+    salaAtual              = SALA_SAGUAO;
+    aparicoesAtivadas      = false;
+    tempoComecou           = false;
+    tempoDecorrido         = 0.0f;
+    lixosNoSaco            = 0;
+    portaBloqueadaMsgTimer = 0;
+    saidaBloqueadaMsgTimer = 0;
+    portaChaveMsgTimer     = 0;
+    portaChavePrompt       = false;
+
+    InicializarPersonagem(player);
 }
 
 static void ResetarInimigos(void) {
@@ -253,6 +303,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
     if (player->posicao.y > 1080.0f - raio) player->posicao.y = 1080.0f - raio;
 
     if (portaBloqueadaMsgTimer > 0) portaBloqueadaMsgTimer--;
+    if (saidaBloqueadaMsgTimer > 0) saidaBloqueadaMsgTimer--;
     if (portaChaveMsgTimer     > 0) portaChaveMsgTimer--;
     portaChavePrompt = false;
 
@@ -282,16 +333,16 @@ TelaAtual UpdateGameplay(Personagem *player) {
             }
         } else {
             if (porta->destino == SALA_SAIDA) {
-                IrParaSala(&salaAtual, &player->posicao, porta);
                 if (LimpezaCompleta()) {
+                    IrParaSala(&salaAtual, &player->posicao, porta);
                     return TELA_NOME;
+                } else {
+                    saidaBloqueadaMsgTimer = 120;
                 }
-                salaAtual = SALA_SAGUAO;
+            } else {
+                IrParaSala(&salaAtual, &player->posicao, porta);
                 ResetarInimigos();
-                return TELA_ENTRADA;
             }
-            IrParaSala(&salaAtual, &player->posicao, porta);
-            ResetarInimigos();
         }
     }
 
@@ -552,4 +603,21 @@ void DrawGameplay(Personagem player) {
         DrawRectangle(560, 490, 800, 100, Fade(BLACK, 0.75f));
         DrawText("Trancado. Voce precisa de uma chave.", 580, 525, 28, RED);
     }
+
+    if (saidaBloqueadaMsgTimer > 0) {
+        DrawRectangle(440, 490, 1040, 100, Fade(BLACK, 0.75f));
+        DrawText("Termine a limpeza antes de sair!", 510, 525, 32, RED);
+    }
+
+    int sujeirasRestantes = 0, lixosRestantes = 0;
+    if (elementosChao.cabeca != NULL) {
+        NodoElemento *cur = elementosChao.cabeca;
+        do {
+            if (cur->tipo == ELEMENTO_SUJEIRA) sujeirasRestantes++;
+            else if (cur->tipo == ELEMENTO_LIXO) lixosRestantes++;
+            cur = cur->proximo;
+        } while (cur != elementosChao.cabeca);
+    }
+    DrawText(TextFormat("Sujeira: %d  |  Lixo: %d", sujeirasRestantes, lixosRestantes),
+             20, 95, 22, LIGHTGRAY);
 }

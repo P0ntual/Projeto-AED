@@ -23,6 +23,7 @@ int main() {
     Personagem player;
     InicializarPersonagem(&player);
 
+    Rectangle btnVoltarMenu = { 760.0f, 700.0f, 400.0f, 80.0f };
 
     TocarMusicaMenu();
 
@@ -50,9 +51,17 @@ int main() {
                 break;
 
             case TELA_VITORIA:
+                if (CheckCollisionPointRec(GetMousePosition(), btnVoltarMenu) &&
+                    IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    tela = TELA_START;
+                }
                 break;
 
             case TELA_GAME_OVER:
+                if (CheckCollisionPointRec(GetMousePosition(), btnVoltarMenu) &&
+                    IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    tela = TELA_START;
+                }
                 break;
 
             case TELA_NOME:
@@ -75,6 +84,10 @@ int main() {
             }
             if (tela == TELA_RANKING) {
                 RecarregarRanking();
+            }
+            if (tela == TELA_START) {
+                ResetarGameplay(&player);
+                TocarMusicaMenu();
             }
             telaAnterior = tela;
         }
@@ -103,13 +116,37 @@ int main() {
                     DrawGameplay(player);
                     break;
 
-                case TELA_VITORIA:
-                    DrawText("PARABENS! TURNO CONCLUIDO", 500, 500, 50, GREEN);
-                    break;
+                case TELA_VITORIA: {
+                    int sz = 50;
+                    int w = MeasureText("PARABENS! TURNO CONCLUIDO", sz);
+                    DrawText("PARABENS! TURNO CONCLUIDO", (1920 - w)/2, 500, sz, GREEN);
 
-                case TELA_GAME_OVER:
-                    DrawText("GAME OVER", 800, 500, 60, RED);
+                    bool hover = CheckCollisionPointRec(GetMousePosition(), btnVoltarMenu);
+                    DrawRectangleRec(btnVoltarMenu, hover ? GREEN : DARKGREEN);
+                    int btSz = 30;
+                    int btW  = MeasureText("VOLTAR AO MENU", btSz);
+                    DrawText("VOLTAR AO MENU",
+                             (int)(btnVoltarMenu.x + btnVoltarMenu.width/2  - btW/2),
+                             (int)(btnVoltarMenu.y + btnVoltarMenu.height/2 - btSz/2),
+                             btSz, BLACK);
                     break;
+                }
+
+                case TELA_GAME_OVER: {
+                    int sz = 60;
+                    int w = MeasureText("GAME OVER", sz);
+                    DrawText("GAME OVER", (1920 - w)/2, 500, sz, RED);
+
+                    bool hover = CheckCollisionPointRec(GetMousePosition(), btnVoltarMenu);
+                    DrawRectangleRec(btnVoltarMenu, hover ? RED : MAROON);
+                    int btSz = 30;
+                    int btW  = MeasureText("VOLTAR AO MENU", btSz);
+                    DrawText("VOLTAR AO MENU",
+                             (int)(btnVoltarMenu.x + btnVoltarMenu.width/2  - btW/2),
+                             (int)(btnVoltarMenu.y + btnVoltarMenu.height/2 - btSz/2),
+                             btSz, BLACK);
+                    break;
+                }
 
                 case TELA_NOME:
                     DrawTelaNome();
