@@ -54,8 +54,8 @@ int TamanhoFila(const FilaInimigos *fila) {
     return fila->tamanho;
 }
 
-void AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos) {
-    if (!fila->permiteAparicao) return;
+bool AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos) {
+    if (!fila->permiteAparicao) return false;
 
     fila->tempoProximaAparicao -= GetFrameTime();
 
@@ -80,7 +80,9 @@ void AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos) {
             }
         }
         fila->tempoProximaAparicao = fila->intervaloAparicao;
+        return true;
     }
+    return false;
 }
 
 Inimigo *ObterProximoInimigo(FilaInimigos *fila) {

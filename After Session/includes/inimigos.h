@@ -34,7 +34,7 @@ bool FilaEstaVazia(const FilaInimigos *fila);
 bool FilaEstaCheia(const FilaInimigos *fila);
 int TamanhoFila(const FilaInimigos *fila);
 
-void AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos);
+bool AtualizarFilaInimigos(FilaInimigos *fila, Vector2 jogadorPos);
 Inimigo *ObterProximoInimigo(FilaInimigos *fila);
 void RemoverInimigoAtivo(FilaInimigos *fila, int indice);
 

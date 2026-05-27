@@ -7,5 +7,7 @@ void EncerrarAudio(void);
 
 void TocarMusicaMenu(void);
 void TocarMusicaIntro(void);
+void TocarMusicaGame(void);
+void TocarMusicaPerseguicao(void);
 
 #endif

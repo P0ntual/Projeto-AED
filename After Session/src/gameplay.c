@@ -2,6 +2,7 @@
 #include "item.h"
 #include "grafo.h"
 #include "expediente.h"
+#include "audio.h"
 #include "raylib.h"
 #include <stdbool.h>
 #include <stdlib.h>
@@ -19,6 +20,8 @@ static bool expedienteInicializado = false;
 
 static float tempoDecorrido = 0.0f;
 static bool tempoComecou = false;
+
+static bool perseguicaoAtiva = false;
 
 static Rectangle telaBloco        = {  710.0f,  20.0f, 500.0f, 200.0f };
 static Rectangle poltronasEsq     = {  100.0f, 300.0f, 360.0f, 480.0f };
@@ -192,6 +195,7 @@ void ResetarGameplay(Personagem *player) {
 
     salaAtual              = SALA_SAGUAO;
     aparicoesAtivadas      = false;
+    perseguicaoAtiva       = false;
     tempoComecou           = false;
     tempoDecorrido         = 0.0f;
     lixosNoSaco            = 0;
@@ -245,6 +249,16 @@ TelaAtual UpdateGameplay(Personagem *player) {
 
     AtualizarFilaInimigos(&filaInimigos, player->posicao);
     AtualizarMovimentoInimigos(&filaInimigos, player->posicao);
+
+    bool algumAtivo = false;
+    for (int i = 0; i < FILA_INIMIGOS_MAX; i++) {
+        if (filaInimigos.inimigos[i].ativo) { algumAtivo = true; break; }
+    }
+    if (algumAtivo != perseguicaoAtiva) {
+        perseguicaoAtiva = algumAtivo;
+        if (perseguicaoAtiva) TocarMusicaPerseguicao();
+        else                  TocarMusicaGame();
+    }
 
     if (ColisaoComInimigos(&filaInimigos, player->posicao, 20.0f)) {
         return TELA_GAME_OVER;
