@@ -9,5 +9,6 @@ void TocarMusicaMenu(void);
 void TocarMusicaIntro(void);
 void TocarMusicaGame(void);
 void TocarMusicaPerseguicao(void);
+void TocarMusicaVitoria(void);
 
 #endif

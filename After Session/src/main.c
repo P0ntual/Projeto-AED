@@ -81,6 +81,7 @@ int main() {
             }
             if (tela == TELA_NOME) {
                 InitTelaNome();
+                TocarMusicaVitoria();
             }
             if (tela == TELA_RANKING) {
                 RecarregarRanking();
