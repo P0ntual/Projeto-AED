@@ -8,6 +8,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+static Texture2D chaoTexture;
+static bool chaoCarregado = false;
+
+static Texture2D chaoBanheiroTexture;
+static bool chaoBanheiroCarregado = false;
+
+static Texture2D chaoSalaTexture;
+static bool chaoSalaCarregado = false;
+
+static Texture2D bilheteriaTexture;
+static bool bilheteriaCarregada = false;
+
 static GrafoMapa grafo;
 static bool grafoInicializado = false;
 
@@ -39,7 +51,7 @@ static Rectangle armarioZelador = {  40.0f,  40.0f, 350.0f, 250.0f };
 static Rectangle caixasZelador  = { 600.0f, 150.0f, 700.0f, 250.0f };
 static Rectangle depositoLixo   = { 1500.0f, 450.0f, 200.0f, 250.0f };
 
-static Rectangle bilheteria = { 660.0f, 30.0f, 600.0f, 180.0f };
+static Rectangle bilheteria = { 860.0f, 30.0f, 200.0f, 230.0f };
 
 static Rectangle corredorParedeTopo  = { 0.0f,   0.0f, 1920.0f, 340.0f };
 static Rectangle corredorParedeBaixo = { 0.0f, 740.0f, 1920.0f, 340.0f };
@@ -246,6 +258,26 @@ static void ResetarInimigos(void) {
 }
 
 TelaAtual UpdateGameplay(Personagem *player) {
+    if (!chaoCarregado) {
+        chaoTexture = LoadTexture("assets/images/chao corredor.png");
+        chaoCarregado = true;
+    }
+
+    if (!chaoBanheiroCarregado) {
+        chaoBanheiroTexture = LoadTexture("assets/images/chao banheiro.png");
+        chaoBanheiroCarregado = true;
+    }
+
+    if (!chaoSalaCarregado) {
+        chaoSalaTexture = LoadTexture("assets/images/chao sala principal.png");
+        chaoSalaCarregado = true;
+    }
+
+    if (!bilheteriaCarregada) {
+        bilheteriaTexture = LoadTexture("assets/images/bilheteria.png");
+        bilheteriaCarregada = true;
+    }
+
     if (!grafoInicializado) {
         InicializarGrafo(&grafo);
         grafoInicializado = true;
@@ -494,10 +526,23 @@ static void DesenharPortasDaSala(IdSala sala) {
 void DrawGameplay(Personagem player) {
     switch (salaAtual) {
         case SALA_SAGUAO:
-            ClearBackground(DARKGRAY);
+            ClearBackground(BLACK);
+            {
+                int tw = 138, th = 48;
+                for (int row = 0; row * th + 200 < 1080; row++) {
+                    for (int col = 0; col * tw < 1920; col++) {
+                        Rectangle src  = ((row + col) % 2 == 0)
+                            ? (Rectangle){195, 240,  138, 48}
+                            : (Rectangle){333, 240, -138, 48};
+                        Rectangle dest = {(float)(col * tw), (float)(row * th + 200), (float)tw, (float)th};
+                        DrawTexturePro(chaoSalaTexture, src, dest, (Vector2){0,0}, 0.0f, WHITE);
+                    }
+                }
+            }
             DesenharPortasDaSala(salaAtual);
-            DrawRectangleRec(bilheteria, (Color){ 120, 80, 40, 255 });
-            DrawTextF("BILHETERIA", 800, 100, 32, GOLD);
+            DrawTexturePro(bilheteriaTexture,
+                (Rectangle){294, 279, 172, 197},
+                bilheteria, (Vector2){0,0}, 0.0f, WHITE);
             DrawTextF("SAIDA",     910,  950, 30, DARKGRAY);
             DrawTextF("COR 1",      20,   90, 20, WHITE);
             DrawTextF("COR 2",    1750,   90, 20, WHITE);
@@ -507,6 +552,12 @@ void DrawGameplay(Personagem player) {
             break;
         case SALA_CORREDOR_1:
             ClearBackground(BLACK);
+            {
+                Rectangle src = {254, 617, 225, 143};
+                for (int ty = 340; ty < 740; ty += 80)
+                    for (int tx = 0; tx < 1920; tx += 160)
+                        DrawTextureRec(chaoTexture, src, (Vector2){(float)tx, (float)ty}, WHITE);
+            }
             DrawRectangleRec(corredorParedeTopo, DARKGRAY);
             DrawRectangleRec(corredorParedeBaixo, DARKGRAY);
             DesenharPortasDaSala(salaAtual);
@@ -525,6 +576,12 @@ void DrawGameplay(Personagem player) {
             break;
         case SALA_CORREDOR_2:
             ClearBackground(BLACK);
+            {
+                Rectangle src = {254, 617, 225, 143};
+                for (int ty = 340; ty < 740; ty += 80)
+                    for (int tx = 0; tx < 1920; tx += 160)
+                        DrawTextureRec(chaoTexture, src, (Vector2){(float)tx, (float)ty}, WHITE);
+            }
             DrawRectangleRec(corredorParedeTopo, DARKGRAY);
             DrawRectangleRec(corredorParedeBaixo, DARKGRAY);
             DesenharPortasDaSala(salaAtual);
@@ -542,7 +599,13 @@ void DrawGameplay(Personagem player) {
             DrawTextF("SAIDA", 10, 940, 22, WHITE);
             break;
         case SALA_BANHEIRO_FEM:
-            ClearBackground((Color){ 220, 180, 220, 255 });
+            ClearBackground(WHITE);
+            {
+                Rectangle src = {317, 406, 188, 126};
+                for (int ty = 200; ty < 1080; ty += 126)
+                    for (int tx = 0; tx < 1920; tx += 188)
+                        DrawTextureRec(chaoBanheiroTexture, src, (Vector2){(float)tx, (float)ty}, WHITE);
+            }
             DrawRectangleRec(cabinesBanheiroFem, (Color){ 180, 140, 180, 255 });
             DrawRectangleRec(piasBanheiroFem, LIGHTGRAY);
             DesenharPortasDaSala(salaAtual);
@@ -552,7 +615,13 @@ void DrawGameplay(Personagem player) {
             DrawTextF("SAIDA", 1830, 530, 22, WHITE);
             break;
         case SALA_BANHEIRO_MASC:
-            ClearBackground((Color){ 180, 210, 230, 255 });
+            ClearBackground(WHITE);
+            {
+                Rectangle src = {317, 406, 188, 126};
+                for (int ty = 200; ty < 1080; ty += 126)
+                    for (int tx = 0; tx < 1920; tx += 188)
+                        DrawTextureRec(chaoBanheiroTexture, src, (Vector2){(float)tx, (float)ty}, WHITE);
+            }
             DrawRectangleRec(cabinesBanheiroMasc, (Color){ 140, 170, 200, 255 });
             DrawRectangleRec(piasBanheiroMasc, LIGHTGRAY);
             DesenharPortasDaSala(salaAtual);
