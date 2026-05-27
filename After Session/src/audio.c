@@ -67,6 +67,16 @@ void TocarMusicaVitoria(void) {
     PlayMusicStream(musicaAtual);
 }
 
+void TocarMusicaDerrota(void) {
+    if (!audioIniciado) return;
+    pararMusicaAtual();
+    musicaAtual = LoadMusicStream("Defeat.ogg");
+    SetMusicVolume(musicaAtual, 0.7f);
+    SetMusicPitch(musicaAtual, 1.0f);
+    musicaAtual.looping = true;
+    PlayMusicStream(musicaAtual);
+}
+
 void AtualizarAudio(void) {
     if (!audioIniciado) return;
     UpdateMusicStream(musicaAtual);

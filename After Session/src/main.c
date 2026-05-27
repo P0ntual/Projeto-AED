@@ -83,6 +83,9 @@ int main() {
                 InitTelaNome();
                 TocarMusicaVitoria();
             }
+            if (tela == TELA_GAME_OVER) {
+                TocarMusicaDerrota();
+            }
             if (tela == TELA_RANKING) {
                 RecarregarRanking();
             }
