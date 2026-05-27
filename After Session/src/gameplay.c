@@ -710,7 +710,6 @@ void DrawGameplay(Personagem player) {
                 depositoLixo, (Vector2){0,0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
             DrawTextF("SALA DO ZELADOR", 730, 50, 40, BEIGE);
-            DrawTextF("SAIDA", 910, 950, 30, DARKGRAY);
             break;
         default:
             ClearBackground(BLACK);
