@@ -625,7 +625,6 @@ void DrawGameplay(Personagem player) {
             DrawTexturePro(cartazesTexture, (Rectangle){0,0,1921,1081},
                 (Rectangle){160,20,1600,315}, (Vector2){0,0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
-            DrawTextF("CORREDOR 1", 850, 130, 40, MAROON);
             break;
         case SALA_CINEMA_1:
             ClearBackground(DARKGRAY);
@@ -651,7 +650,6 @@ void DrawGameplay(Personagem player) {
             DrawTexturePro(cartazesTexture, (Rectangle){0,0,1921,1081},
                 (Rectangle){160,20,1600,315}, (Vector2){0,0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
-            DrawTextF("CORREDOR 2", 850, 130, 40, DARKBLUE);
             break;
         case SALA_CINEMA_2:
             ClearBackground(DARKGRAY);

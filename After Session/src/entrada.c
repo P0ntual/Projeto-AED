@@ -16,6 +16,9 @@ static float animTimer      = 0.0f;
 static bool  frameAndando   = false;
 static bool  virandoDireita = true;
 
+static bool  entrouNaEntrada = false;
+static float yInicial        = 0.0f;
+
 void InitEntrada(void) {
     telaEntrada           = LoadTexture("assets/images/universal/tela_frente.png");
     spriteAndandoDireita  = LoadTexture("assets/images/zelezinho/Zelezinho andando direita.png");
@@ -35,10 +38,14 @@ void UnloadEntrada(void) {
 TelaAtual UpdateEntrada(Personagem *player) {
     float raio = 20.0f;
 
+    if (!entrouNaEntrada) {
+        yInicial = player->posicao.y;
+        entrouNaEntrada = true;
+    }
+    player->posicao.y = yInicial;
+
     if (player->posicao.x < raio)           player->posicao.x = raio;
     if (player->posicao.x > 1920.0f - raio) player->posicao.x = 1920.0f - raio;
-    if (player->posicao.y < raio)           player->posicao.y = raio;
-    if (player->posicao.y > 1080.0f - raio) player->posicao.y = 1080.0f - raio;
 
     bool pressionouD = IsKeyDown(KEY_D);
     bool pressionouA = IsKeyDown(KEY_A);
@@ -64,6 +71,7 @@ TelaAtual UpdateEntrada(Personagem *player) {
             iniciandoTransicao = false;
             frameAndando       = false;
             animTimer          = 0.0f;
+            entrouNaEntrada    = false;
             player->posicao.x  = 960.0f;
             player->posicao.y  = 700.0f;
             return TELA_GAMEPLAY;
