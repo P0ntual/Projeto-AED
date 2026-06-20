@@ -89,7 +89,7 @@ static Rectangle piasBanheiroMasc    = {   20.0f,  20.0f, 320.0f, 370.0f };
 
 static Rectangle armarioZelador = {  40.0f,  40.0f, 220.0f, 250.0f };
 static Rectangle caixasZelador  = { 580.0f, 180.0f, 280.0f, 176.0f };
-static Rectangle depositoLixo   = {  280.0f,  80.0f, 120.0f, 140.0f };
+static Rectangle depositoLixo   = {  280.0f,  80.0f,  80.0f,  95.0f };
 
 static Rectangle bilheteria = { 860.0f, 150.0f, 200.0f, 230.0f };
 
