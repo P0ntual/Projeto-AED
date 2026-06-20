@@ -167,8 +167,6 @@ void DrawInventario(Inventario inv) {
     }
 }
 
-/* --- Lista Simplesmente Encadeada (Itens no Chão) --- */
-
 void InicializarListaChao(ListaItensChao *lista) {
     lista->cabeca  = NULL;
     lista->tamanho = 0;
@@ -220,8 +218,6 @@ TipoItem ColetarItemChao(ListaItensChao *lista, Vector2 posicao, int mapaId, flo
     }
     return ITEM_VAZIO;
 }
-
-/* --- Lista Circular Encadeada (Sujeiras/Lixos) --- */
 
 void InicializarListaElementos(ListaElementos *lista) {
     lista->cabeca  = NULL;

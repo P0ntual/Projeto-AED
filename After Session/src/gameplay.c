@@ -47,6 +47,15 @@ static bool portasCarregadas = false;
 static Texture2D espelhosTexture;
 static bool espelhosCarregado = false;
 
+static Texture2D piaTexture;
+static bool piaCarregada = false;
+
+static Texture2D cabineTexture;
+static bool cabineCarregada = false;
+
+static Texture2D vassouaTexture;
+static bool vassouaCarregada = false;
+
 static Texture2D pipocaTexture;
 static Texture2D pepiBlackTexture;
 static bool sujeirasCarregadas = false;
@@ -73,10 +82,10 @@ static Rectangle poltronasDirr    = { 1460.0f, 300.0f, 360.0f, 480.0f };
 static Rectangle poltronasCentEsq = {  560.0f, 300.0f, 300.0f, 480.0f };
 static Rectangle poltronasCentDir = { 1060.0f, 300.0f, 300.0f, 480.0f };
 
-static Rectangle cabinesBanheiroFem  = {   40.0f,  80.0f, 160.0f, 700.0f };
-static Rectangle piasBanheiroFem     = { 1700.0f,  80.0f, 180.0f, 200.0f };
-static Rectangle cabinesBanheiroMasc = { 1720.0f,  80.0f, 160.0f, 700.0f };
-static Rectangle piasBanheiroMasc    = {   40.0f,  80.0f, 180.0f, 200.0f };
+static Rectangle cabinesBanheiroFem  = {   40.0f,  80.0f, 360.0f, 700.0f };
+static Rectangle piasBanheiroFem     = { 1580.0f,  20.0f, 320.0f, 370.0f };
+static Rectangle cabinesBanheiroMasc = { 1520.0f,  80.0f, 360.0f, 700.0f };
+static Rectangle piasBanheiroMasc    = {   20.0f,  20.0f, 320.0f, 370.0f };
 
 static Rectangle armarioZelador = {  40.0f,  40.0f, 220.0f, 250.0f };
 static Rectangle caixasZelador  = { 580.0f, 180.0f, 280.0f, 176.0f };
@@ -358,6 +367,21 @@ TelaAtual UpdateGameplay(Personagem *player) {
     if (!espelhosCarregado) {
         espelhosTexture = LoadTexture("assets/images/banheiros/espelhos.png");
         espelhosCarregado = true;
+    }
+
+    if (!piaCarregada) {
+        piaTexture = LoadTexture("assets/images/banheiros/pia.png");
+        piaCarregada = true;
+    }
+
+    if (!cabineCarregada) {
+        cabineTexture = LoadTexture("assets/images/banheiros/cabine.png");
+        cabineCarregada = true;
+    }
+
+    if (!vassouaCarregada) {
+        vassouaTexture = LoadTexture("assets/images/sala zelador/vassoura.png");
+        vassouaCarregada = true;
     }
 
     if (!grafoInicializado) {
@@ -672,12 +696,12 @@ void DrawGameplay(Personagem player) {
             }
             DrawTexturePro(espelhosTexture, (Rectangle){0,0,1921,1081},
                 (Rectangle){0,0,1920,260}, (Vector2){0,0}, 0.0f, WHITE);
-            DrawRectangleRec(cabinesBanheiroFem, (Color){ 180, 140, 180, 255 });
-            DrawRectangleRec(piasBanheiroFem, LIGHTGRAY);
+            DrawTexturePro(cabineTexture, (Rectangle){1254,0,-1254,1254},
+                cabinesBanheiroFem, (Vector2){0,0}, 0.0f, WHITE);
+            DrawTexturePro(piaTexture, (Rectangle){0,0,427,489},
+                piasBanheiroFem, (Vector2){0,0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
             DrawTextF("BANHEIRO FEMININO", 700, 50, 40, WHITE);
-            DrawTextF("CABINES", 55, 400, 20, WHITE);
-            DrawTextF("PIAS", 1745, 160, 20, DARKGRAY);
             DrawTextF("SAIDA", 1830, 530, 22, WHITE);
             break;
         case SALA_BANHEIRO_MASC:
@@ -690,12 +714,12 @@ void DrawGameplay(Personagem player) {
             }
             DrawTexturePro(espelhosTexture, (Rectangle){0,0,1921,1081},
                 (Rectangle){0,0,1920,260}, (Vector2){0,0}, 0.0f, WHITE);
-            DrawRectangleRec(cabinesBanheiroMasc, (Color){ 140, 170, 200, 255 });
-            DrawRectangleRec(piasBanheiroMasc, LIGHTGRAY);
+            DrawTexturePro(cabineTexture, (Rectangle){0,0,1254,1254},
+                cabinesBanheiroMasc, (Vector2){0,0}, 0.0f, WHITE);
+            DrawTexturePro(piaTexture, (Rectangle){0,0,427,489},
+                piasBanheiroMasc, (Vector2){0,0}, 0.0f, WHITE);
             DesenharPortasDaSala(salaAtual);
             DrawTextF("BANHEIRO MASCULINO", 680, 50, 40, WHITE);
-            DrawTextF("CABINES", 1730, 400, 20, WHITE);
-            DrawTextF("PIAS", 80, 160, 20, DARKGRAY);
             DrawTextF("SAIDA", 10, 530, 22, WHITE);
             break;
         case SALA_ZELADOR:
@@ -725,6 +749,9 @@ void DrawGameplay(Personagem player) {
         } else if (IS_CHAVE(itensMundo[i].tipo)) {
             DrawTexturePro(chaveTexture, (Rectangle){757,512,112,234},
                 (Rectangle){pos.x - 16, pos.y - 34, 32, 68}, (Vector2){0,0}, 0.0f, WHITE);
+        } else if (itensMundo[i].tipo == ITEM_VASSOURA) {
+            DrawTexturePro(vassouaTexture, (Rectangle){0,0,519,501},
+                (Rectangle){pos.x - 300, pos.y - 300, 600, 600}, (Vector2){0,0}, 0.0f, WHITE);
         } else {
             DrawCircle((int)pos.x, (int)pos.y, 14.0f, BLACK);
             DrawCircle((int)pos.x, (int)pos.y, 12.0f, CorItem(itensMundo[i].tipo));
@@ -749,6 +776,10 @@ void DrawGameplay(Personagem player) {
             } else if (IS_CHAVE(curItem->tipo)) {
                 DrawTexturePro(chaveTexture, (Rectangle){757,512,112,234},
                     (Rectangle){curItem->posicao.x - 28, curItem->posicao.y - 58, 56, 116},
+                    (Vector2){0,0}, 0.0f, WHITE);
+            } else if (curItem->tipo == ITEM_VASSOURA) {
+                DrawTexturePro(vassouaTexture, (Rectangle){0,0,519,501},
+                    (Rectangle){curItem->posicao.x - 300, curItem->posicao.y - 300, 600, 600},
                     (Vector2){0,0}, 0.0f, WHITE);
             } else {
                 DrawCircle((int)curItem->posicao.x, (int)curItem->posicao.y, 14.0f, BLACK);

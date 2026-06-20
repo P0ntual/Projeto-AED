@@ -91,7 +91,6 @@ static void DesenharZelezinho(Personagem player, bool virandoDireitaLocal, bool 
         ? (frameAndandoLocal ? spriteAndandoDireita  : spriteParadoDireita)
         : (frameAndandoLocal ? spriteAndandoEsquerda : spriteParadoEsquerda);
 
-    // usa o frame completo para evitar cortes
     Rectangle src  = { 0, 0, 1254, 1254 };
     float     disp = 500.0f;
     Rectangle dest = {
