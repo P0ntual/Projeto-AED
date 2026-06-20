@@ -231,7 +231,7 @@ static void EnfileirarInimigosPadrao(void) {
         inimigo.ativo      = false;
         inimigo.tempoVida  = 0.0f;
         inimigo.tipo       = tipos[i];
-        inimigo.velocidade = (tipos[i] == INIMIGO_STALKER) ? 3.25f : 5.2f;
+        inimigo.velocidade = (tipos[i] == INIMIGO_STALKER) ? 2.75f : 5.2f;
 
         EnfileirarInimigo(&filaInimigos, inimigo);
     }
@@ -407,7 +407,7 @@ TelaAtual UpdateGameplay(Personagem *player) {
     }
 
     if (!filaInicializada) {
-        InicializarFilaInimigos(&filaInimigos, 3.0f);
+        InicializarFilaInimigos(&filaInimigos, 4.0f);
         EnfileirarInimigosPadrao();
         filaInicializada = true;
     }
