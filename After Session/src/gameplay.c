@@ -617,6 +617,47 @@ static void DesenharPortasDaSala(IdSala sala) {
     }
 }
 
+static void DesenharCarpeteCinema(void) {
+    Color faixaEscura = (Color){ 58, 14, 16, 255 };
+    Color faixaClara  = (Color){ 74, 20, 22, 255 };
+    for (int y = 0; y < 1080; y += 40) {
+        Color cor = ((y / 40) % 2 == 0) ? faixaEscura : faixaClara;
+        DrawRectangle(0, y, 1920, 40, cor);
+    }
+}
+
+static void DesenharTelaCinema(void) {
+    DrawRectangle(0, 0, 1920, 300, (Color){ 46, 34, 20, 255 });
+
+    Rectangle moldura = { 680.0f, 10.0f, 560.0f, 230.0f };
+    DrawRectangleLinesEx(moldura, 6.0f, GOLD);
+
+    Rectangle cortina = telaBloco;
+    DrawRectangleRec(cortina, (Color){ 138, 18, 20, 255 });
+    for (int x = (int)cortina.x; x < cortina.x + cortina.width; x += 22) {
+        DrawRectangle(x, (int)cortina.y, 11, (int)cortina.height, (Color){ 168, 30, 32, 255 });
+    }
+    DrawRectangleLinesEx(cortina, 3.0f, (Color){ 90, 10, 12, 255 });
+
+    DrawRectangle(0, 280, 1920, 16, GOLD);
+}
+
+static void DesenharFileiraPoltronas(Rectangle area) {
+    const float largura = 34.0f;
+    const float altura  = 38.0f;
+    const float espacoX = 6.0f;
+    const float espacoY = 10.0f;
+
+    for (float y = area.y; y + altura <= area.y + area.height; y += altura + espacoY) {
+        for (float x = area.x; x + largura <= area.x + area.width; x += largura + espacoX) {
+            Rectangle assento = { x, y, largura, altura };
+            DrawRectangleRec(assento, MAROON);
+            DrawRectangle((int)x, (int)y, (int)largura, 9, (Color){ 92, 14, 16, 255 });
+            DrawRectangleLinesEx(assento, 2.0f, (Color){ 35, 24, 16, 255 });
+        }
+    }
+}
+
 void DrawGameplay(Personagem player) {
     switch (salaAtual) {
         case SALA_SAGUAO:
@@ -651,13 +692,12 @@ void DrawGameplay(Personagem player) {
             DesenharPortasDaSala(salaAtual);
             break;
         case SALA_CINEMA_1:
-            ClearBackground(DARKGRAY);
-            DrawRectangle(0, 0, 1920, 300, GRAY);
-            DrawRectangleRec(telaBloco, RAYWHITE);
-            DrawRectangleRec(poltronasEsq, BROWN);
-            DrawRectangleRec(poltronasDirr, BROWN);
-            DrawRectangleRec(poltronasCentEsq, BROWN);
-            DrawRectangleRec(poltronasCentDir, BROWN);
+            DesenharCarpeteCinema();
+            DesenharTelaCinema();
+            DesenharFileiraPoltronas(poltronasEsq);
+            DesenharFileiraPoltronas(poltronasDirr);
+            DesenharFileiraPoltronas(poltronasCentEsq);
+            DesenharFileiraPoltronas(poltronasCentDir);
             DesenharPortasDaSala(salaAtual);
             DrawTextF("SAIDA", 1830, 940, 22, WHITE);
             break;
@@ -676,13 +716,12 @@ void DrawGameplay(Personagem player) {
             DesenharPortasDaSala(salaAtual);
             break;
         case SALA_CINEMA_2:
-            ClearBackground(DARKGRAY);
-            DrawRectangle(0, 0, 1920, 300, GRAY);
-            DrawRectangleRec(telaBloco, RAYWHITE);
-            DrawRectangleRec(poltronasEsq, BROWN);
-            DrawRectangleRec(poltronasDirr, BROWN);
-            DrawRectangleRec(poltronasCentEsq, BROWN);
-            DrawRectangleRec(poltronasCentDir, BROWN);
+            DesenharCarpeteCinema();
+            DesenharTelaCinema();
+            DesenharFileiraPoltronas(poltronasEsq);
+            DesenharFileiraPoltronas(poltronasDirr);
+            DesenharFileiraPoltronas(poltronasCentEsq);
+            DesenharFileiraPoltronas(poltronasCentDir);
             DesenharPortasDaSala(salaAtual);
             DrawTextF("SAIDA", 10, 940, 22, WHITE);
             break;
